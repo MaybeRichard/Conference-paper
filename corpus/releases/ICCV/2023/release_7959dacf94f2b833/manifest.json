@@ -1,0 +1,33 @@
+{
+  "adapter_version": "paperlists-adapter-v1",
+  "conference": "ICCV",
+  "created_at": "2026-08-20T12:23:14Z",
+  "errors": [],
+  "originating_run_id": "20260820T122310Z-paperlists-import",
+  "paper_checksum": "c7b84c4f4fa4fbaf76e65d55bb46bc48954b45d4a013125fd32152402e398541",
+  "paper_count": 5,
+  "paper_shard_checksum": "c818346657024945a13aa6bd98ef25395e758be211fcd5e06dfbc4c2fb405ac1",
+  "paper_shard_path": "corpus/releases/ICCV/2023/release_7959dacf94f2b833/papers.jsonl",
+  "release_id": "release_7959dacf94f2b833",
+  "schema_version": "corpus-release-v1",
+  "source_metadata": {
+    "delta_against_snapshot": "snapshot_e60987e831d7b3166f87",
+    "excluded": [
+      "rejected",
+      "desk-rejected",
+      "withdrawn",
+      "journal-track",
+      "empty-status"
+    ],
+    "migration": "paperlists-import-v1",
+    "source_commit": "9fcfd1234879a8e5630b5116dde411ec143dd763",
+    "source_path": "iccv/iccv2023.json",
+    "source_repo": "https://github.com/papercopilot/paperlists",
+    "source_sha256": "c7b84c4f4fa4fbaf76e65d55bb46bc48954b45d4a013125fd32152402e398541",
+    "source_status": "available"
+  },
+  "source_status": "available",
+  "warning_approved": false,
+  "warnings": [],
+  "year": 2023
+}

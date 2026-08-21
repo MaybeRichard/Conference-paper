@@ -1,0 +1,25 @@
+{
+  "adapter_version": "collection-adapter-v1",
+  "conference": "CVPR",
+  "created_at": "2026-07-30T15:58:47.379864Z",
+  "errors": [],
+  "originating_run_id": "20260730T1558390-update-783bd3777c",
+  "paper_checksum": "ef34c5e7a9545088fc957e5e106daf1a88a2258f2cdca459bdfefba4da739ee8",
+  "paper_count": 4068,
+  "paper_shard_checksum": "89588784a24b232c94de35296de0329aa3d12f11b3c486cba3eec2704500eda3",
+  "paper_shard_path": "corpus/releases/CVPR/2026/release_5436d090104e2d24512a/papers.jsonl",
+  "release_id": "release_5436d090104e2d24512a",
+  "schema_version": "corpus-release-v1",
+  "source_metadata": {
+    "historical_reported_papers": 4068,
+    "historical_status": "checkpoint",
+    "legacy_source_path": "data/papers_2023_2026.jsonl",
+    "legacy_source_sha256": "c97564e683984006cc14331489686e04447cbded0cdcc6604d2327b5f19a2ff1",
+    "migration": "legacy-local-corpus-v1",
+    "source_status": "available"
+  },
+  "source_status": "available",
+  "warning_approved": false,
+  "warnings": [],
+  "year": 2026
+}

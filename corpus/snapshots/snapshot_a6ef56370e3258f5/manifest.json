@@ -1,0 +1,611 @@
+{
+  "created_at": "2026-08-21T01:07:26Z",
+  "materialization_checksum": "f4625a8e465d9b839a3d31f2050284b8e618e91669711d2862e629d6f6cfa38c",
+  "paper_count": 113989,
+  "releases": [
+    {
+      "conference": "AAAI",
+      "manifest_checksum": "66022776e93ecf110138dac4a5ccbaf69d5308df765d5106f591f0266491f05d",
+      "manifest_path": "corpus/releases/AAAI/2021/release_1c0187c8f0eee019/manifest.json",
+      "release_id": "release_1c0187c8f0eee019",
+      "year": 2021
+    },
+    {
+      "conference": "AAAI",
+      "manifest_checksum": "72f8f4df3c9b2cc48ebc18cecc97f90e63a117acdc679d4604978a066b9460f3",
+      "manifest_path": "corpus/releases/AAAI/2022/release_d66e0c8145fd5d68/manifest.json",
+      "release_id": "release_d66e0c8145fd5d68",
+      "year": 2022
+    },
+    {
+      "conference": "AAAI",
+      "manifest_checksum": "a56f8ec232b530fd4b38d8c139a6277387c4e8019d593a33eb41b70dd6aca6bf",
+      "manifest_path": "corpus/releases/AAAI/2023/release_41cb9615baf0615a/manifest.json",
+      "release_id": "release_41cb9615baf0615a",
+      "year": 2023
+    },
+    {
+      "conference": "AAAI",
+      "manifest_checksum": "4eadb2a0388bebb5819789b07506ec57388c09832f6d57d6c5723b0d75f14c2b",
+      "manifest_path": "corpus/releases/AAAI/2023/release_7da27fd7e8f89c798155/manifest.json",
+      "release_id": "release_7da27fd7e8f89c798155",
+      "year": 2023
+    },
+    {
+      "conference": "AAAI",
+      "manifest_checksum": "e485d14df90da3c251e6496c79a7e435cee9499c1d9ba04be25cf6176346966f",
+      "manifest_path": "corpus/releases/AAAI/2024/release_56441a063f22157e/manifest.json",
+      "release_id": "release_56441a063f22157e",
+      "year": 2024
+    },
+    {
+      "conference": "AAAI",
+      "manifest_checksum": "eadeaf05091438773c86fa2e8fc083227017a284f4cbc97eb335487bb2a99a59",
+      "manifest_path": "corpus/releases/AAAI/2024/release_e7b196a51d6334281bbe/manifest.json",
+      "release_id": "release_e7b196a51d6334281bbe",
+      "year": 2024
+    },
+    {
+      "conference": "AAAI",
+      "manifest_checksum": "af7424c6849ae46ce8fc6b1e8f9d598361655761e1fa377e27265913fbe2bda2",
+      "manifest_path": "corpus/releases/AAAI/2025/release_2bfb3a5d0c58c86e2264/manifest.json",
+      "release_id": "release_2bfb3a5d0c58c86e2264",
+      "year": 2025
+    },
+    {
+      "conference": "AAAI",
+      "manifest_checksum": "304d021ab93fe6c70d9ceae122b8d1e24f828c8e56d29a83df20829139af2cf0",
+      "manifest_path": "corpus/releases/AAAI/2025/release_3d6d17c3fe03ffb0/manifest.json",
+      "release_id": "release_3d6d17c3fe03ffb0",
+      "year": 2025
+    },
+    {
+      "conference": "AAAI",
+      "manifest_checksum": "04e6e3dd9efbfcb6e87413c602144e49594a628f916d86580a7f3b2170c29a6b",
+      "manifest_path": "corpus/releases/AAAI/2026/release_43b8d2258bd665f3aff4/manifest.json",
+      "release_id": "release_43b8d2258bd665f3aff4",
+      "year": 2026
+    },
+    {
+      "conference": "AISTATS",
+      "manifest_checksum": "21ef9980da13a40e60e3ad9c6e81e5effe17626fe53a4a217bf088d707851e28",
+      "manifest_path": "corpus/releases/AISTATS/2020/release_e2f1405ab9e121e3/manifest.json",
+      "release_id": "release_e2f1405ab9e121e3",
+      "year": 2020
+    },
+    {
+      "conference": "AISTATS",
+      "manifest_checksum": "ca411ae963807f39fc7226cdec583e92a56c488801aad3ea86ade962afc5464d",
+      "manifest_path": "corpus/releases/AISTATS/2021/release_cb189d3bbd2f4947/manifest.json",
+      "release_id": "release_cb189d3bbd2f4947",
+      "year": 2021
+    },
+    {
+      "conference": "AISTATS",
+      "manifest_checksum": "bc5be3eaa974f717f236e32afce1d183beb57418ef5ab513841199e13d22da4b",
+      "manifest_path": "corpus/releases/AISTATS/2022/release_8f1cd9c354607274/manifest.json",
+      "release_id": "release_8f1cd9c354607274",
+      "year": 2022
+    },
+    {
+      "conference": "AISTATS",
+      "manifest_checksum": "c1b5fbf73a78602071c27b04cb515f1fadc1e3353bb1483e5353106d060a4954",
+      "manifest_path": "corpus/releases/AISTATS/2023/release_7001af881d386340/manifest.json",
+      "release_id": "release_7001af881d386340",
+      "year": 2023
+    },
+    {
+      "conference": "AISTATS",
+      "manifest_checksum": "20ef08c5c89be8dba6d695158e9276e66f9d60ab08dfa279df6a615726d1d860",
+      "manifest_path": "corpus/releases/AISTATS/2024/release_1083e8be29ee9c2d/manifest.json",
+      "release_id": "release_1083e8be29ee9c2d",
+      "year": 2024
+    },
+    {
+      "conference": "AISTATS",
+      "manifest_checksum": "21077faf8bd91fad74cc989d3d1be9846be7bcc846e1fdbdf57ffb2b089ef30b",
+      "manifest_path": "corpus/releases/AISTATS/2025/release_34b0ae312df6d231/manifest.json",
+      "release_id": "release_34b0ae312df6d231",
+      "year": 2025
+    },
+    {
+      "conference": "COLM",
+      "manifest_checksum": "9b7dc88c81849ca5287880cfbd22b2ff1dddb7801e3b17d35f50003152a2becf",
+      "manifest_path": "corpus/releases/COLM/2024/release_178ab5daac86ff3e/manifest.json",
+      "release_id": "release_178ab5daac86ff3e",
+      "year": 2024
+    },
+    {
+      "conference": "COLM",
+      "manifest_checksum": "dae8f76ba0ae9f020298085aee60524832768e27d1601d0beae2448bdb5a18ed",
+      "manifest_path": "corpus/releases/COLM/2025/release_d5f2dba32efd5733/manifest.json",
+      "release_id": "release_d5f2dba32efd5733",
+      "year": 2025
+    },
+    {
+      "conference": "CVPR",
+      "manifest_checksum": "0701cf1a0c8bb7345311a66ed944c55170b7afd42e1a777d2cf83fb579b6bf5f",
+      "manifest_path": "corpus/releases/CVPR/2020/release_45c53ae2426b2989/manifest.json",
+      "release_id": "release_45c53ae2426b2989",
+      "year": 2020
+    },
+    {
+      "conference": "CVPR",
+      "manifest_checksum": "c177b8b65745835110e8f88a01c7f4b6a775caad8b7a2c628213e26e1fd8d37c",
+      "manifest_path": "corpus/releases/CVPR/2021/release_0e7c6bd886727ad4/manifest.json",
+      "release_id": "release_0e7c6bd886727ad4",
+      "year": 2021
+    },
+    {
+      "conference": "CVPR",
+      "manifest_checksum": "c58e376768183e1b4af33bffe848c9da262a76870e50b5745852e14fc7ca50d1",
+      "manifest_path": "corpus/releases/CVPR/2022/release_4a6ecc2ff0b1c653/manifest.json",
+      "release_id": "release_4a6ecc2ff0b1c653",
+      "year": 2022
+    },
+    {
+      "conference": "CVPR",
+      "manifest_checksum": "dc3994d5c4955dee3f6e879b92c572bfc50dc9b2281b9105d4f18509f7f0c0da",
+      "manifest_path": "corpus/releases/CVPR/2023/release_59e2e2d0ae2678d0a8bf/manifest.json",
+      "release_id": "release_59e2e2d0ae2678d0a8bf",
+      "year": 2023
+    },
+    {
+      "conference": "CVPR",
+      "manifest_checksum": "88dd48d80a6f2236d77c5e342b384ba712d8fa9682dd581dbdc6c80431dd78eb",
+      "manifest_path": "corpus/releases/CVPR/2023/release_9fa0eecddbd36220/manifest.json",
+      "release_id": "release_9fa0eecddbd36220",
+      "year": 2023
+    },
+    {
+      "conference": "CVPR",
+      "manifest_checksum": "e6396ebc2656d018ac5dfd59aa56d61f0c9beecbd72a86799a82d5fc60e2e801",
+      "manifest_path": "corpus/releases/CVPR/2024/release_0551ed9d2cbd2fcd40d8/manifest.json",
+      "release_id": "release_0551ed9d2cbd2fcd40d8",
+      "year": 2024
+    },
+    {
+      "conference": "CVPR",
+      "manifest_checksum": "fde77d630d4a5d66523417d67906253b4d9549067f3815197f10bf0ac1843596",
+      "manifest_path": "corpus/releases/CVPR/2025/release_6603cea132cda3ce/manifest.json",
+      "release_id": "release_6603cea132cda3ce",
+      "year": 2025
+    },
+    {
+      "conference": "CVPR",
+      "manifest_checksum": "3e634f3f5a65a015ad1a871ec8e5e9e8a134ece978ac2d19675e77581b420a03",
+      "manifest_path": "corpus/releases/CVPR/2025/release_906c2013c3e4dbe217b9/manifest.json",
+      "release_id": "release_906c2013c3e4dbe217b9",
+      "year": 2025
+    },
+    {
+      "conference": "CVPR",
+      "manifest_checksum": "9a395268d48c3985a7d0bd14679d1b0362f94a4bdeb43c6a4b60bcef16f1b4ed",
+      "manifest_path": "corpus/releases/CVPR/2026/release_5436d090104e2d24512a/manifest.json",
+      "release_id": "release_5436d090104e2d24512a",
+      "year": 2026
+    },
+    {
+      "conference": "ECCV",
+      "manifest_checksum": "688057eaa0a4ac0245390569ba015e438f04237b06fd92e8f64646807714e169",
+      "manifest_path": "corpus/releases/ECCV/2020/release_fd43076658f68c5d/manifest.json",
+      "release_id": "release_fd43076658f68c5d",
+      "year": 2020
+    },
+    {
+      "conference": "ECCV",
+      "manifest_checksum": "c8ed5b92c9dd64d65273c5cca6459c5fd281b7711c82d09adbea1ff9208c586f",
+      "manifest_path": "corpus/releases/ECCV/2022/release_16905a61606ada48/manifest.json",
+      "release_id": "release_16905a61606ada48",
+      "year": 2022
+    },
+    {
+      "conference": "ECCV",
+      "manifest_checksum": "abce6d2bb6a26d769c4f2c7cf9f11c8389aa565de7b6f1a6c52027edbb40a475",
+      "manifest_path": "corpus/releases/ECCV/2024/release_5465cd3b0f1a08561086/manifest.json",
+      "release_id": "release_5465cd3b0f1a08561086",
+      "year": 2024
+    },
+    {
+      "conference": "ECCV",
+      "manifest_checksum": "a750748aca0c7eafb1c30c4ae2371ff434dfd56f97e0e278561a2ab2d0d40e8b",
+      "manifest_path": "corpus/releases/ECCV/2024/release_8a1b0473e8173ebf/manifest.json",
+      "release_id": "release_8a1b0473e8173ebf",
+      "year": 2024
+    },
+    {
+      "conference": "ICCV",
+      "manifest_checksum": "621c2b2eb1b38820b2d080557508decdac630aaaf8c916b2510a9c972eb5b00d",
+      "manifest_path": "corpus/releases/ICCV/2021/release_4fd08d0ae3ab15ab/manifest.json",
+      "release_id": "release_4fd08d0ae3ab15ab",
+      "year": 2021
+    },
+    {
+      "conference": "ICCV",
+      "manifest_checksum": "1b213a207fe50c3cf12683a0878e07b8e836210803d9f6f4c176e45f75a4ce07",
+      "manifest_path": "corpus/releases/ICCV/2023/release_236cb5165e9aad3f40c4/manifest.json",
+      "release_id": "release_236cb5165e9aad3f40c4",
+      "year": 2023
+    },
+    {
+      "conference": "ICCV",
+      "manifest_checksum": "efa6919178b8c0a4c41160c07f1be490fbc80c7741a71051b950dc33610418c4",
+      "manifest_path": "corpus/releases/ICCV/2023/release_7959dacf94f2b833/manifest.json",
+      "release_id": "release_7959dacf94f2b833",
+      "year": 2023
+    },
+    {
+      "conference": "ICCV",
+      "manifest_checksum": "74620f5d36f2cc1785d21e9d76eff08d953f3d067a2033e16a0129e7ee94bd63",
+      "manifest_path": "corpus/releases/ICCV/2025/release_5484c64b7965d49d/manifest.json",
+      "release_id": "release_5484c64b7965d49d",
+      "year": 2025
+    },
+    {
+      "conference": "ICCV",
+      "manifest_checksum": "548d30a36e91b8c09ebd0c43e60af9eb231db8e183e80b34dafb7232a781e479",
+      "manifest_path": "corpus/releases/ICCV/2025/release_cbd8354250636f9091d0/manifest.json",
+      "release_id": "release_cbd8354250636f9091d0",
+      "year": 2025
+    },
+    {
+      "conference": "ICLR",
+      "manifest_checksum": "055d150e628171adf58427c7216f47857fb8db35ee199465bcb3fca878107f54",
+      "manifest_path": "corpus/releases/ICLR/2020/release_d5dda95a103e31df/manifest.json",
+      "release_id": "release_d5dda95a103e31df",
+      "year": 2020
+    },
+    {
+      "conference": "ICLR",
+      "manifest_checksum": "32115bb70066c06a0ad26bc8f21448a6c62c73aff01136ab20f7890e56cbdf45",
+      "manifest_path": "corpus/releases/ICLR/2021/release_eaba2858921f256a/manifest.json",
+      "release_id": "release_eaba2858921f256a",
+      "year": 2021
+    },
+    {
+      "conference": "ICLR",
+      "manifest_checksum": "909b5db6250b9b3e48689a9f09dfc775567c95a9bb42a3c9b6ab3e2580dbe625",
+      "manifest_path": "corpus/releases/ICLR/2022/release_4bb577d73a11f72f/manifest.json",
+      "release_id": "release_4bb577d73a11f72f",
+      "year": 2022
+    },
+    {
+      "conference": "ICLR",
+      "manifest_checksum": "1056c3bf002103ae5a5d3fb601f5875b2628d5993a44c7c1d28a5501779b4572",
+      "manifest_path": "corpus/releases/ICLR/2023/release_3741799f904408285c26/manifest.json",
+      "release_id": "release_3741799f904408285c26",
+      "year": 2023
+    },
+    {
+      "conference": "ICLR",
+      "manifest_checksum": "0e8d730321dfa634c94ca873a051a5633462b46b2630db7e6e8ed09cea22b1a7",
+      "manifest_path": "corpus/releases/ICLR/2024/release_74a52c1bf260f2f02202/manifest.json",
+      "release_id": "release_74a52c1bf260f2f02202",
+      "year": 2024
+    },
+    {
+      "conference": "ICLR",
+      "manifest_checksum": "ce7a3d9012126a1007e4286558cff5f4842efc8533c51bf7854ae461ca3a0d51",
+      "manifest_path": "corpus/releases/ICLR/2025/release_a416f1134d4a80c4fbce/manifest.json",
+      "release_id": "release_a416f1134d4a80c4fbce",
+      "year": 2025
+    },
+    {
+      "conference": "ICLR",
+      "manifest_checksum": "2eb162d3ebc2fa31531d3d76ef6dbb6bdce7199add0b2b608dd45d1795c857cf",
+      "manifest_path": "corpus/releases/ICLR/2025/release_bbb436e1a71df8d9/manifest.json",
+      "release_id": "release_bbb436e1a71df8d9",
+      "year": 2025
+    },
+    {
+      "conference": "ICLR",
+      "manifest_checksum": "2b3b81af468656225d14cbb17b972ac86e54c938b33a312a58a39eb26f121390",
+      "manifest_path": "corpus/releases/ICLR/2026/release_00884e5303b54f873ee0/manifest.json",
+      "release_id": "release_00884e5303b54f873ee0",
+      "year": 2026
+    },
+    {
+      "conference": "ICLR",
+      "manifest_checksum": "a347f41bb49f09658ae0fb85fc31c24cebc5cefef1aa6987134776755fac62ad",
+      "manifest_path": "corpus/releases/ICLR/2026/release_d187e3b6a17d9d44/manifest.json",
+      "release_id": "release_d187e3b6a17d9d44",
+      "year": 2026
+    },
+    {
+      "conference": "ICML",
+      "manifest_checksum": "cea5a0a16909a2f4e443e50b8154be2289332d5b9ada033bd382ba884d565d41",
+      "manifest_path": "corpus/releases/ICML/2020/release_32a807a87fbcb4fd/manifest.json",
+      "release_id": "release_32a807a87fbcb4fd",
+      "year": 2020
+    },
+    {
+      "conference": "ICML",
+      "manifest_checksum": "eb6be1ed1a3a354e87f40c30b8cc8f9ffe4cc808d60486f9470354d50d2b7112",
+      "manifest_path": "corpus/releases/ICML/2021/release_c62df36644d0a22b/manifest.json",
+      "release_id": "release_c62df36644d0a22b",
+      "year": 2021
+    },
+    {
+      "conference": "ICML",
+      "manifest_checksum": "e13436e7b7d33e731c70798b1fb526d1b787fc80574dcad3d4ad6b0025479671",
+      "manifest_path": "corpus/releases/ICML/2022/release_d33e09fead6bc08b/manifest.json",
+      "release_id": "release_d33e09fead6bc08b",
+      "year": 2022
+    },
+    {
+      "conference": "ICML",
+      "manifest_checksum": "aa96df9eb1dba186cad800d3606631dd4e5349e87e725cb9ef17ae7411d907bf",
+      "manifest_path": "corpus/releases/ICML/2023/release_8f03c2f01afc904b6456/manifest.json",
+      "release_id": "release_8f03c2f01afc904b6456",
+      "year": 2023
+    },
+    {
+      "conference": "ICML",
+      "manifest_checksum": "4e71427825b0f6606e77380c18696ffd9902e669c3986ea5db1f1df8447ba660",
+      "manifest_path": "corpus/releases/ICML/2023/release_e59152d7db3f5555/manifest.json",
+      "release_id": "release_e59152d7db3f5555",
+      "year": 2023
+    },
+    {
+      "conference": "ICML",
+      "manifest_checksum": "30e3c30b081c0c3942b1ee749637fde74abf049b53e5073343a4dd16ab7755ae",
+      "manifest_path": "corpus/releases/ICML/2024/release_53f44341a61904511fd3/manifest.json",
+      "release_id": "release_53f44341a61904511fd3",
+      "year": 2024
+    },
+    {
+      "conference": "ICML",
+      "manifest_checksum": "1d728edcc230a8ec1011b7f7c31847d38536d5e8854b9eb09fc1290f973dcaab",
+      "manifest_path": "corpus/releases/ICML/2024/release_beeb07c6b19c5161/manifest.json",
+      "release_id": "release_beeb07c6b19c5161",
+      "year": 2024
+    },
+    {
+      "conference": "ICML",
+      "manifest_checksum": "f9cb8cdac64d95aca01267df39fadcd72eb836f66e6b3cc19503bee95d0245b6",
+      "manifest_path": "corpus/releases/ICML/2025/release_d8f899c090104a0e3ea6/manifest.json",
+      "release_id": "release_d8f899c090104a0e3ea6",
+      "year": 2025
+    },
+    {
+      "conference": "ICML",
+      "manifest_checksum": "05dcc3150981e348f26a475748de1ed0dfc2915afba73743ad8d39527c39352b",
+      "manifest_path": "corpus/releases/ICML/2025/release_fa9ff16878de08e9/manifest.json",
+      "release_id": "release_fa9ff16878de08e9",
+      "year": 2025
+    },
+    {
+      "conference": "ICML",
+      "manifest_checksum": "936a518e54d67e6dcfe69e9fe66f44d492ea39aca77e89f169ca3a770df45c52",
+      "manifest_path": "corpus/releases/ICML/2026/release_7cfdc05e5558192e/manifest.json",
+      "release_id": "release_7cfdc05e5558192e",
+      "year": 2026
+    },
+    {
+      "conference": "IJCAI",
+      "manifest_checksum": "0feb94e33ee2bd0d8c0c3143d99b06d4e45f27d35f9d4a6b574fdfa5f2249d1b",
+      "manifest_path": "corpus/releases/IJCAI/2020/release_7c080b7ed224f491/manifest.json",
+      "release_id": "release_7c080b7ed224f491",
+      "year": 2020
+    },
+    {
+      "conference": "IJCAI",
+      "manifest_checksum": "196054c2dea057cf2d25277435448ce8d7da6547e5b15270aa7ce8d1603866a5",
+      "manifest_path": "corpus/releases/IJCAI/2021/release_e5a3f5bf7047a32f/manifest.json",
+      "release_id": "release_e5a3f5bf7047a32f",
+      "year": 2021
+    },
+    {
+      "conference": "IJCAI",
+      "manifest_checksum": "f1b75974785fbecbc2128b930908574006273d853312331d160130bc95899472",
+      "manifest_path": "corpus/releases/IJCAI/2022/release_515eb5e77db5d122/manifest.json",
+      "release_id": "release_515eb5e77db5d122",
+      "year": 2022
+    },
+    {
+      "conference": "IJCAI",
+      "manifest_checksum": "8590738635ad27241d931efb5576b8e2fa15dcbb7f80a27a6d190a0404c0ddce",
+      "manifest_path": "corpus/releases/IJCAI/2023/release_86fd47da9e0892a8/manifest.json",
+      "release_id": "release_86fd47da9e0892a8",
+      "year": 2023
+    },
+    {
+      "conference": "IJCAI",
+      "manifest_checksum": "e4f4899e51a0e43f7723c246c0324536fd59316d4323c838901042388a96aaa1",
+      "manifest_path": "corpus/releases/IJCAI/2024/release_36c37c5da3342fbe/manifest.json",
+      "release_id": "release_36c37c5da3342fbe",
+      "year": 2024
+    },
+    {
+      "conference": "ISBI",
+      "manifest_checksum": "ad9699c03a4a72ac60020dd82e030675186e3fadf33d7d02565bd8c3e88ed5b3",
+      "manifest_path": "corpus/releases/ISBI/2020/release_55ccd3506a129f08/manifest.json",
+      "release_id": "release_55ccd3506a129f08",
+      "year": 2020
+    },
+    {
+      "conference": "ISBI",
+      "manifest_checksum": "1f3cd8a4f4bdf86a76801909a0b90a6628e25de47afe9a9be27d00dfdbef700f",
+      "manifest_path": "corpus/releases/ISBI/2021/release_b48f0a36bf03acdd/manifest.json",
+      "release_id": "release_b48f0a36bf03acdd",
+      "year": 2021
+    },
+    {
+      "conference": "ISBI",
+      "manifest_checksum": "5e0dfc00c69f6049f1cfcccb09cb1dc93e092980fe36a63f74e0eb0c6d2fc9fb",
+      "manifest_path": "corpus/releases/ISBI/2022/release_6dd0b4a31360f819/manifest.json",
+      "release_id": "release_6dd0b4a31360f819",
+      "year": 2022
+    },
+    {
+      "conference": "ISBI",
+      "manifest_checksum": "e153bf477edc1a69015812b2f62acec8f2acb541b3a780595a3747cf2af70597",
+      "manifest_path": "corpus/releases/ISBI/2023/release_061625ad5138f96e/manifest.json",
+      "release_id": "release_061625ad5138f96e",
+      "year": 2023
+    },
+    {
+      "conference": "ISBI",
+      "manifest_checksum": "e0034131ed1b029c166076e4f4ac6dfa2a5a1f9a52fd847c69cf39b249d78dd4",
+      "manifest_path": "corpus/releases/ISBI/2024/release_fe8f0eefaec38fe2/manifest.json",
+      "release_id": "release_fe8f0eefaec38fe2",
+      "year": 2024
+    },
+    {
+      "conference": "ISBI",
+      "manifest_checksum": "9a24089c49e7e07e13a347a946401603634cda92b44b2ecec5ebb8e19d3b1bb4",
+      "manifest_path": "corpus/releases/ISBI/2025/release_59dbf48d701d68ef/manifest.json",
+      "release_id": "release_59dbf48d701d68ef",
+      "year": 2025
+    },
+    {
+      "conference": "MICCAI",
+      "manifest_checksum": "1f6d1a5bb3c2cffc0ef631d6272a73e4df984d610230311d981a2ceebfce4057",
+      "manifest_path": "corpus/releases/MICCAI/2020/release_05b964ad0188d2d6/manifest.json",
+      "release_id": "release_05b964ad0188d2d6",
+      "year": 2020
+    },
+    {
+      "conference": "MICCAI",
+      "manifest_checksum": "5e86376abdf1abcae39ed89a353fea8aeec5d6a54b22bcca61309dbf3a8e4efd",
+      "manifest_path": "corpus/releases/MICCAI/2021/release_cafe23a909b81dee/manifest.json",
+      "release_id": "release_cafe23a909b81dee",
+      "year": 2021
+    },
+    {
+      "conference": "MICCAI",
+      "manifest_checksum": "aee81e74c72e8548ffe714e4f7e61da58753f236360410feed9f48b4667e95c6",
+      "manifest_path": "corpus/releases/MICCAI/2022/release_2a4f1ed4f473dea8/manifest.json",
+      "release_id": "release_2a4f1ed4f473dea8",
+      "year": 2022
+    },
+    {
+      "conference": "MICCAI",
+      "manifest_checksum": "d86f87066badfa1d3359f7c38597e316e2d31d5ee51f223fff964d6deb95e5b7",
+      "manifest_path": "corpus/releases/MICCAI/2023/release_ed7889634f15e37e/manifest.json",
+      "release_id": "release_ed7889634f15e37e",
+      "year": 2023
+    },
+    {
+      "conference": "MICCAI",
+      "manifest_checksum": "d37ebd1fc019c87238186ddb1418be6014debcd6c28e80f701193bd70ed82677",
+      "manifest_path": "corpus/releases/MICCAI/2024/release_24284fe0aaf0283f/manifest.json",
+      "release_id": "release_24284fe0aaf0283f",
+      "year": 2024
+    },
+    {
+      "conference": "MICCAI",
+      "manifest_checksum": "fbd77ae84370874e174cb6b15bc2c96c99a24d59c31383f2a059387ccd8a8e5a",
+      "manifest_path": "corpus/releases/MICCAI/2025/release_9a06b516ab4a021b/manifest.json",
+      "release_id": "release_9a06b516ab4a021b",
+      "year": 2025
+    },
+    {
+      "conference": "NEURIPS",
+      "manifest_checksum": "5b0a0018f7cbf32b4145f3ecc6facfefe18de26f44392c6869bda89373e70d67",
+      "manifest_path": "corpus/releases/NEURIPS/2020/release_79cdd539e3c8610b/manifest.json",
+      "release_id": "release_79cdd539e3c8610b",
+      "year": 2020
+    },
+    {
+      "conference": "NEURIPS",
+      "manifest_checksum": "43ebdea24d51465151af044b11528782f7593a25804b65279af9fbadd55eb838",
+      "manifest_path": "corpus/releases/NEURIPS/2021/release_4b28d5c2ae313541/manifest.json",
+      "release_id": "release_4b28d5c2ae313541",
+      "year": 2021
+    },
+    {
+      "conference": "NEURIPS",
+      "manifest_checksum": "bc43f6a12510506fddadc64addbdb38a70ec974ebff98f71c945e02088486ff3",
+      "manifest_path": "corpus/releases/NEURIPS/2022/release_8b61fc380d989e85/manifest.json",
+      "release_id": "release_8b61fc380d989e85",
+      "year": 2022
+    },
+    {
+      "conference": "NEURIPS",
+      "manifest_checksum": "fdf3e53b059cbe5938b45bdf1ebc43e4615ab3e6605ff7ded80dd4a92ce0994b",
+      "manifest_path": "corpus/releases/NEURIPS/2023/release_1df1281a2a931066/manifest.json",
+      "release_id": "release_1df1281a2a931066",
+      "year": 2023
+    },
+    {
+      "conference": "NEURIPS",
+      "manifest_checksum": "d5ab0ff5eede76616008b808223acb2598bb0de82196b7556c228af68a2ba73f",
+      "manifest_path": "corpus/releases/NEURIPS/2023/release_844a64b0a67dec9636f4/manifest.json",
+      "release_id": "release_844a64b0a67dec9636f4",
+      "year": 2023
+    },
+    {
+      "conference": "NEURIPS",
+      "manifest_checksum": "8ae34302a77e1f26de2611cb5a3257303c1079ae990b81aeea2522a3887fe628",
+      "manifest_path": "corpus/releases/NEURIPS/2024/release_808bc94fa7823443/manifest.json",
+      "release_id": "release_808bc94fa7823443",
+      "year": 2024
+    },
+    {
+      "conference": "NEURIPS",
+      "manifest_checksum": "41f9097d5bc3a644b36a37a17201da53dd682b28d37ba43a5d52f076d4c00425",
+      "manifest_path": "corpus/releases/NEURIPS/2024/release_e545c51e2d3ead0ab221/manifest.json",
+      "release_id": "release_e545c51e2d3ead0ab221",
+      "year": 2024
+    },
+    {
+      "conference": "NEURIPS",
+      "manifest_checksum": "e5523e47b8f3bcd0951c1c1800c97680c2e19dd1cbda12fb448736710ba815a5",
+      "manifest_path": "corpus/releases/NEURIPS/2025/release_81503e26a7781244b760/manifest.json",
+      "release_id": "release_81503e26a7781244b760",
+      "year": 2025
+    },
+    {
+      "conference": "NEURIPS",
+      "manifest_checksum": "ea98329fa7f91ee1cadfbdaffca64a00aa06843ab523df4b1109e8c38addf775",
+      "manifest_path": "corpus/releases/NEURIPS/2025/release_dd4014130b2c7c0d/manifest.json",
+      "release_id": "release_dd4014130b2c7c0d",
+      "year": 2025
+    },
+    {
+      "conference": "WACV",
+      "manifest_checksum": "7a0fc047871fb62e618a571f09704bf79e7e4ff85e08e79725a8339fbdaecda4",
+      "manifest_path": "corpus/releases/WACV/2020/release_f71986060d6e9b06/manifest.json",
+      "release_id": "release_f71986060d6e9b06",
+      "year": 2020
+    },
+    {
+      "conference": "WACV",
+      "manifest_checksum": "b105e1d3c948b76a298c70d6541706639b0385ce4b5b2d22dd3b36b26a865c5c",
+      "manifest_path": "corpus/releases/WACV/2021/release_ffa0114a57d16944/manifest.json",
+      "release_id": "release_ffa0114a57d16944",
+      "year": 2021
+    },
+    {
+      "conference": "WACV",
+      "manifest_checksum": "86750d146304449dbed6180465af7330b52706abad6d91cad7ee21ce97015830",
+      "manifest_path": "corpus/releases/WACV/2022/release_a249ba8183601c82/manifest.json",
+      "release_id": "release_a249ba8183601c82",
+      "year": 2022
+    },
+    {
+      "conference": "WACV",
+      "manifest_checksum": "389a9d7743f0141775b531aeaf058162434372d0d629b0092ea26a627147cd1c",
+      "manifest_path": "corpus/releases/WACV/2023/release_bedb6869c1fa57fa/manifest.json",
+      "release_id": "release_bedb6869c1fa57fa",
+      "year": 2023
+    },
+    {
+      "conference": "WACV",
+      "manifest_checksum": "b48416e28ddc8e65acb47d9a5b005dfac5dd3f0f3e9d4a9a5246341ab83362f2",
+      "manifest_path": "corpus/releases/WACV/2024/release_aa471c5ddc993cef/manifest.json",
+      "release_id": "release_aa471c5ddc993cef",
+      "year": 2024
+    },
+    {
+      "conference": "WACV",
+      "manifest_checksum": "c69e65d30e653dda19cafe662eb122ed33c8f1007c2a6a135baa4ae63a8841fb",
+      "manifest_path": "corpus/releases/WACV/2025/release_46049b7bfa94f672/manifest.json",
+      "release_id": "release_46049b7bfa94f672",
+      "year": 2025
+    }
+  ],
+  "schema_version": "corpus-snapshot-v1",
+  "snapshot_id": "snapshot_a6ef56370e3258f5"
+}

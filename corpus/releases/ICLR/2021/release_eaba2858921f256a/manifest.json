@@ -1,0 +1,33 @@
+{
+  "adapter_version": "paperlists-adapter-v1",
+  "conference": "ICLR",
+  "created_at": "2026-08-20T12:23:14Z",
+  "errors": [],
+  "originating_run_id": "20260820T122310Z-paperlists-import",
+  "paper_checksum": "047face751f75d542d499118749ff38d11078eb1a699ee60b89fe76f58078e07",
+  "paper_count": 860,
+  "paper_shard_checksum": "0e06743f8262527a704462eb0c0567ec8a739a0104a2487ea7ccc3eb278bdec0",
+  "paper_shard_path": "corpus/releases/ICLR/2021/release_eaba2858921f256a/papers.jsonl",
+  "release_id": "release_eaba2858921f256a",
+  "schema_version": "corpus-release-v1",
+  "source_metadata": {
+    "delta_against_snapshot": "snapshot_e60987e831d7b3166f87",
+    "excluded": [
+      "rejected",
+      "desk-rejected",
+      "withdrawn",
+      "journal-track",
+      "empty-status"
+    ],
+    "migration": "paperlists-import-v1",
+    "source_commit": "9fcfd1234879a8e5630b5116dde411ec143dd763",
+    "source_path": "iclr/iclr2021.json",
+    "source_repo": "https://github.com/papercopilot/paperlists",
+    "source_sha256": "047face751f75d542d499118749ff38d11078eb1a699ee60b89fe76f58078e07",
+    "source_status": "available"
+  },
+  "source_status": "available",
+  "warning_approved": false,
+  "warnings": [],
+  "year": 2021
+}

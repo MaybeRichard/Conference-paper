@@ -1,0 +1,14 @@
+.DS_Store
+research-directions/
+**/papers-local/*
+!**/papers-local/README.md
+**/results-local/*
+!**/results-local/README.md
+*.pdf
+*.ckpt
+*.pth
+*.pt
+*.safetensors
+wandb/
+__pycache__/
+*.pyc

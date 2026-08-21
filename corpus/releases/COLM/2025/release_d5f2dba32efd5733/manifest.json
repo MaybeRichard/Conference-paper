@@ -1,0 +1,33 @@
+{
+  "adapter_version": "paperlists-adapter-v1",
+  "conference": "COLM",
+  "created_at": "2026-08-20T12:37:49Z",
+  "errors": [],
+  "originating_run_id": "20260820T123746Z-paperlists-import",
+  "paper_checksum": "c20ca69ed00126d8ad5d2bc9ef5fa13d2cd12aa05798751d871bf218805660d4",
+  "paper_count": 418,
+  "paper_shard_checksum": "d01665acab0804cc1953c6de92d154e0c9c12be71b315cc997c055ed4388c782",
+  "paper_shard_path": "corpus/releases/COLM/2025/release_d5f2dba32efd5733/papers.jsonl",
+  "release_id": "release_d5f2dba32efd5733",
+  "schema_version": "corpus-release-v1",
+  "source_metadata": {
+    "delta_against_snapshot": "snapshot_211f17a2222cf4d2",
+    "excluded": [
+      "rejected",
+      "desk-rejected",
+      "withdrawn",
+      "journal-track",
+      "empty-status"
+    ],
+    "migration": "paperlists-import-v1",
+    "source_commit": "9fcfd1234879a8e5630b5116dde411ec143dd763",
+    "source_path": "colm/colm2025.json",
+    "source_repo": "https://github.com/papercopilot/paperlists",
+    "source_sha256": "c20ca69ed00126d8ad5d2bc9ef5fa13d2cd12aa05798751d871bf218805660d4",
+    "source_status": "available"
+  },
+  "source_status": "available",
+  "warning_approved": false,
+  "warnings": [],
+  "year": 2025
+}

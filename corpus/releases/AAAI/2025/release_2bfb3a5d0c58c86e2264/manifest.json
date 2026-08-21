@@ -1,0 +1,25 @@
+{
+  "adapter_version": "collection-adapter-v1",
+  "conference": "AAAI",
+  "created_at": "2026-07-30T15:58:41.159172Z",
+  "errors": [],
+  "originating_run_id": "20260730T1558390-update-783bd3777c",
+  "paper_checksum": "1482ee3615b170707b54beebebde00a023dbcb482d7f0b7fc24581e049e4346f",
+  "paper_count": 1740,
+  "paper_shard_checksum": "ac091d7c644590f395def34103e9b8dbf8aa2991b54edc052006fc0ecda8ff66",
+  "paper_shard_path": "corpus/releases/AAAI/2025/release_2bfb3a5d0c58c86e2264/papers.jsonl",
+  "release_id": "release_2bfb3a5d0c58c86e2264",
+  "schema_version": "corpus-release-v1",
+  "source_metadata": {
+    "historical_reported_papers": 1740,
+    "historical_status": "checkpoint",
+    "legacy_source_path": "data/papers_2023_2026.jsonl",
+    "legacy_source_sha256": "c97564e683984006cc14331489686e04447cbded0cdcc6604d2327b5f19a2ff1",
+    "migration": "legacy-local-corpus-v1",
+    "source_status": "available"
+  },
+  "source_status": "available",
+  "warning_approved": false,
+  "warnings": [],
+  "year": 2025
+}

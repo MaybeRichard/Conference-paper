@@ -1,0 +1,72 @@
+{
+  "adapter_version": "medical-adapter-v1",
+  "conference": "ISBI",
+  "created_at": "2026-08-21T01:07:26Z",
+  "errors": [],
+  "originating_run_id": "20260821T010726Z-medical-import",
+  "paper_checksum": "ecfaf977b6e746a259c8d17a6d3402ccfc537f38666a0c09c31f919b986859a3",
+  "paper_count": 420,
+  "paper_shard_checksum": "dc037a76ad61a69345ceab49b961b59a12832c3879b3db22f80aa696f7cb457b",
+  "paper_shard_path": "corpus/releases/ISBI/2021/release_b48f0a36bf03acdd/papers.jsonl",
+  "release_id": "release_b48f0a36bf03acdd",
+  "schema_version": "corpus-release-v1",
+  "source_metadata": {
+    "accepted_criteria": "chapter/paper published in the official proceedings (publisher-registered at Crossref)",
+    "delta_against_snapshot": "snapshot_2783f37b31872c63",
+    "enrichment": {
+      "api": "https://api.semanticscholar.org/graph/v1/paper/search/bulk",
+      "files": [
+        {
+          "path": "corpus/sources/medical/s2/isbi-2020.json",
+          "sha256": "5caef2fe4391785625e2bd422d34125ad9cee9d14d5857ea01616c508251c45d"
+        },
+        {
+          "path": "corpus/sources/medical/s2/isbi-2021.json",
+          "sha256": "8c047d5e74b2f2e4990fd85cc9bd3917c5514571366c56f0026318aea01e4df4"
+        },
+        {
+          "path": "corpus/sources/medical/s2/isbi-2022.json",
+          "sha256": "d44e64639cd033ed7a8c919c186b5ab81b553bfc833104293b702155893a2c51"
+        },
+        {
+          "path": "corpus/sources/medical/s2/isbi-2023.json",
+          "sha256": "71ab5f286071308b2cc92bacc76d827fbd937494c4d6555924af412d4b525d49"
+        },
+        {
+          "path": "corpus/sources/medical/s2/isbi-2024.json",
+          "sha256": "251dee2d6207e9e772384feb9692b80ba0ce6c611465960d7cbbb562682fddfd"
+        },
+        {
+          "path": "corpus/sources/medical/s2/isbi-2025.json",
+          "sha256": "904a6a9336cf77b25142c97ffa0f3f22b9e541ffe7fee86bc45bb2de2d2bd9b8"
+        }
+      ],
+      "license": "CC BY-NC 4.0",
+      "matching": "DOI, with normalized-title fallback"
+    },
+    "excluded": [
+      "workshop and other non-main-conference records",
+      "LNCS volume (type=book) records themselves",
+      "records without title or DOI",
+      "duplicate titles within the proceedings (first by DOI order kept)"
+    ],
+    "migration": "medical-import-v1",
+    "source_commit": null,
+    "source_files": [
+      {
+        "path": "corpus/sources/medical/crossref/isbi-2021.json",
+        "role": "enumeration (Crossref)",
+        "sha256": "ecfaf977b6e746a259c8d17a6d3402ccfc537f38666a0c09c31f919b986859a3"
+      }
+    ],
+    "source_kind": "api-snapshot (Crossref enumeration + Semantic Scholar enrichment)",
+    "source_path": "corpus/sources/medical/crossref/isbi-2021.json",
+    "source_repo": "https://api.crossref.org",
+    "source_sha256": "ecfaf977b6e746a259c8d17a6d3402ccfc537f38666a0c09c31f919b986859a3",
+    "source_status": "available"
+  },
+  "source_status": "available",
+  "warning_approved": false,
+  "warnings": [],
+  "year": 2021
+}

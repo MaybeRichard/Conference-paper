@@ -1,0 +1,25 @@
+{
+  "adapter_version": "collection-adapter-v1",
+  "conference": "ECCV",
+  "created_at": "2026-07-30T15:58:48.305921Z",
+  "errors": [],
+  "originating_run_id": "20260730T1558390-update-783bd3777c",
+  "paper_checksum": "2318aee87cbb3fede01896843a99f8d7714dcfdb4af778fc6283ef533ad47b9f",
+  "paper_count": 2387,
+  "paper_shard_checksum": "07f6bfeaac66d8d0e9a381cee0966f3716cf1052a3649bf46ce6276af340185c",
+  "paper_shard_path": "corpus/releases/ECCV/2024/release_5465cd3b0f1a08561086/papers.jsonl",
+  "release_id": "release_5465cd3b0f1a08561086",
+  "schema_version": "corpus-release-v1",
+  "source_metadata": {
+    "historical_reported_papers": 2387,
+    "historical_status": "checkpoint",
+    "legacy_source_path": "data/papers_2023_2026.jsonl",
+    "legacy_source_sha256": "c97564e683984006cc14331489686e04447cbded0cdcc6604d2327b5f19a2ff1",
+    "migration": "legacy-local-corpus-v1",
+    "source_status": "available"
+  },
+  "source_status": "available",
+  "warning_approved": false,
+  "warnings": [],
+  "year": 2024
+}

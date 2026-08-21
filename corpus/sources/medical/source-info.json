@@ -1,0 +1,87 @@
+{
+  "crossref": {
+    "api": "https://api.crossref.org",
+    "isbi_method": "proceedings enumeration via filter=container-title:<exact title>&rows=1000",
+    "miccai_method": "chapter enumeration per LNCS volume via filter=isbn:<isbn>&rows=200"
+  },
+  "notes": [
+    "Accepted = published in the official proceedings (publisher-registered).",
+    "MICCAI workshop volumes and non-MICCAI LNCS books are excluded.",
+    "S2 enrichment matched by DOI, with normalized-title fallback.",
+    "citationCount is a Semantic Scholar snapshot as of fetch time."
+  ],
+  "semanticscholar": {
+    "api": "https://api.semanticscholar.org/graph/v1/paper/search/bulk",
+    "fetched_at_by_file": {
+      "isbi-2020.json": "2026-08-20T13:36:32Z",
+      "isbi-2021.json": "2026-08-20T13:36:52Z",
+      "isbi-2022.json": "2026-08-20T13:38:13Z",
+      "isbi-2023.json": "2026-08-20T13:38:35Z",
+      "isbi-2024.json": "2026-08-20T13:38:54Z",
+      "isbi-2025.json": "2026-08-20T13:39:14Z",
+      "miccai-2020.json": "2026-08-20T13:30:03Z",
+      "miccai-2021.json": "2026-08-20T13:30:24Z",
+      "miccai-2022.json": "2026-08-20T13:33:46Z",
+      "miccai-2023.json": "2026-08-20T13:34:06Z",
+      "miccai-2024.json": "2026-08-20T13:34:31Z",
+      "miccai-2025.json": "2026-08-20T13:35:10Z",
+      "miccai-2026.json": "2026-08-20T16:21:41Z"
+    },
+    "license": "CC BY-NC 4.0",
+    "queries": [
+      {
+        "venue": "MICCAI",
+        "year": 2020
+      },
+      {
+        "venue": "MICCAI",
+        "year": 2021
+      },
+      {
+        "venue": "MICCAI",
+        "year": 2022
+      },
+      {
+        "venue": "MICCAI",
+        "year": 2023
+      },
+      {
+        "venue": "MICCAI",
+        "year": 2024
+      },
+      {
+        "venue": "MICCAI",
+        "year": 2025
+      },
+      {
+        "venue": "MICCAI",
+        "year": 2026
+      },
+      {
+        "venue": "ISBI",
+        "year": 2020
+      },
+      {
+        "venue": "ISBI",
+        "year": 2021
+      },
+      {
+        "venue": "ISBI",
+        "year": 2022
+      },
+      {
+        "venue": "ISBI",
+        "year": 2023
+      },
+      {
+        "venue": "ISBI",
+        "year": 2024
+      },
+      {
+        "venue": "ISBI",
+        "year": 2025
+      }
+    ]
+  },
+  "staged_at": "2026-08-20T17:44:01Z"
+}
