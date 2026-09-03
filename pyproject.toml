@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "research-story-agent"
+version = "0.1.0"
+description = "Evidence-grounded research workflow foundations"
+requires-python = ">=3.11"
+dependencies = ["pydantic>=2,<3", "PyYAML>=6,<7", "filelock>=3,<4"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10", "build>=1,<2"]
+
+[project.scripts]
+research-agent = "research_agent.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["research_agent*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests/agent"]
+markers = ["real_corpus: read-only integration against the repository corpus"]

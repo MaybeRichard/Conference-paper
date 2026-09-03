@@ -12,3 +12,16 @@ research-directions/
 wandb/
 __pycache__/
 *.pyc
+
+# Research Agent derived/private data and development products
+/indexes/
+/workspaces/
+/cache/
+/.venv/
+/.worktrees/
+/.pytest_cache/
+/build/
+/dist/
+*.egg-info/
+.env
+*.local.yaml
