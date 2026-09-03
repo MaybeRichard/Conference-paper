@@ -120,6 +120,30 @@ class TaskRunner:
                 raise IntegrityError("Task invalidation event has an invalid ArtifactRef") from None
         return stale
 
+    @staticmethod
+    def _completed_output_refs(
+        payloads: list[dict[str, Any]],
+        fingerprint: str,
+    ) -> list[ArtifactRef]:
+        expected_id = f"task_output_{fingerprint}"
+        outputs: list[ArtifactRef] = []
+        versions: dict[int, ArtifactRef] = {}
+        for payload in payloads:
+            if payload.get("type") != "TaskCompleted" or payload.get("fingerprint") != fingerprint:
+                continue
+            try:
+                output = ArtifactRef.model_validate(payload.get("output"))
+            except ValidationError:
+                raise IntegrityError("TaskCompleted event has an invalid output reference") from None
+            if output.artifact_id != expected_id:
+                raise IntegrityError("TaskCompleted event uses an unexpected output identifier")
+            existing = versions.get(output.version)
+            if existing is not None and existing != output:
+                raise IntegrityError("One task output version has conflicting hashes")
+            versions[output.version] = output
+            outputs.append(output)
+        return outputs
+
     def _cached_output(
         self,
         fingerprint: str,
@@ -129,16 +153,11 @@ class TaskRunner:
     ) -> ArtifactRef | None:
         payloads = self._payloads(self.store.events())
         stale = self._invalidated_refs(payloads)
-        matches: list[ArtifactRef] = []
-        for payload in payloads:
-            if payload.get("type") != "TaskCompleted" or payload.get("fingerprint") != fingerprint:
-                continue
-            try:
-                output = ArtifactRef.model_validate(payload.get("output"))
-            except ValidationError:
-                raise IntegrityError("TaskCompleted event has an invalid output reference") from None
-            if output not in stale:
-                matches.append(output)
+        matches = [
+            output
+            for output in self._completed_output_refs(payloads, fingerprint)
+            if output not in stale
+        ]
         unique = set(matches)
         if len(unique) > 1:
             raise IntegrityError("A task fingerprint has multiple visible completed outputs")
@@ -160,6 +179,11 @@ class TaskRunner:
         ):
             raise IntegrityError("Committed task output metadata is inconsistent")
         return output
+
+    def _next_output_version(self, fingerprint: str) -> int:
+        payloads = self._payloads(self.store.events())
+        refs = self._completed_output_refs(payloads, fingerprint)
+        return max((ref.version for ref in refs), default=0) + 1
 
     def _commit_attempt(
         self,
@@ -298,9 +322,10 @@ class TaskRunner:
                 "completed_at": _utc_now(),
             }
             output_id = f"task_output_{fingerprint}"
+            output_version = self._next_output_version(fingerprint)
             output_ref = self.store.commit(
                 output_id,
-                1,
+                output_version,
                 output_payload,
                 [
                     {
@@ -314,7 +339,7 @@ class TaskRunner:
                         ],
                         "output": {
                             "artifact_id": output_id,
-                            "version": 1,
+                            "version": output_version,
                             "sha256": digest(output_payload),
                         },
                     }
