@@ -38,8 +38,100 @@ jobs:
       - name: Verify corpus inventory
         run: node --test tests/conference-corpus.test.mjs
 
-      - name: Run Python tests
-        run: python -m pytest tests/agent -q -ra
+      - name: Run fixture and unit tests
+        run: python -m pytest tests/agent -q -ra -m 'not real_corpus'
+
+      - name: Run real corpus integration test
+        run: python -m pytest tests/agent -q -ra -m real_corpus
 
       - name: Compile Python package
         run: python -m compileall -q research_agent
+
+      - name: Build source and wheel distributions
+        run: python -m build
+
+      - name: Verify wheel contains code only
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+
+          wheels = sorted(Path("dist").glob("*.whl"))
+          assert len(wheels) == 1, wheels
+          with ZipFile(wheels[0]) as archive:
+              names = archive.namelist()
+          forbidden = ("corpus/", "workspaces/", "cache/", ".env", ".pdf", "tests/")
+          unexpected = [
+              name for name in names
+              if any(fragment in name for fragment in forbidden)
+          ]
+          assert not unexpected, unexpected
+          assert "research_agent/api.py" in names
+          assert "research_agent/cli.py" in names
+          print(f"verified wheel entries: {len(names)}")
+          PY
+
+      - name: Smoke test the real M1 CLI boundary
+        run: |
+          research-agent --repo . --json corpus verify > /tmp/m1-corpus.json
+          research-agent --repo . --json workspace create \
+            --domain medical_diffusion_2d \
+            --topic '二维医学图像扩散生成' > /tmp/m1-workspace.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import subprocess
+
+          corpus = json.loads(Path("/tmp/m1-corpus.json").read_text(encoding="utf-8"))
+          assert corpus["paper_count"] == 113989
+          assert corpus["release_count"] == 86
+          created = json.loads(Path("/tmp/m1-workspace.json").read_text(encoding="utf-8"))
+          assert created["stage"] == "G1"
+          assert created["status"] == "waiting_for_user"
+          workspace_id = created["workspace_id"]
+          status = subprocess.run(
+              [
+                  "research-agent", "--repo", ".", "--json",
+                  "status", workspace_id,
+              ],
+              capture_output=True,
+              text=True,
+              check=False,
+          )
+          assert status.returncode == 0, status.stderr
+          assert json.loads(status.stdout) == created
+          waiting = subprocess.run(
+              [
+                  "research-agent", "--repo", ".", "--json",
+                  "run", workspace_id, "--until", "next-gate",
+              ],
+              capture_output=True,
+              text=True,
+              check=False,
+          )
+          assert waiting.returncode == 0, waiting.stderr
+          assert json.loads(waiting.stdout)["status"] == "waiting_for_user"
+          PY
+
+      - name: Re-run the suite from the locked environment
+        run: |
+          python -m venv /tmp/research-agent-m1-lock
+          LOCK_PY=/tmp/research-agent-m1-lock/bin/python
+          "$LOCK_PY" -m pip install -r requirements-dev.lock
+          "$LOCK_PY" -m pip install --no-deps -e .
+          "$LOCK_PY" -m pytest tests/agent -q -ra
+
+      - name: Verify protected repository assets are unchanged
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          git fetch --no-tags --depth=1 origin "$BASE_SHA"
+          git diff --exit-code "$BASE_SHA" -- \
+            corpus \
+            scripts \
+            DATASET_MANIFEST.json \
+            DATA_NOTICE.md \
+            tests/conference-corpus.test.mjs
+          git diff --check
+          test -z "$(git status --short)"
