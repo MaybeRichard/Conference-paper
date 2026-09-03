@@ -1,0 +1,41 @@
+{
+  "batch": "M1 T1-T3",
+  "base_commit": "b9363b6365d99c3e3dcd23019af9cc038b0d0f4d",
+  "branch": "feat/research-agent-m1",
+  "complete_m1": false,
+  "python": "3.13.5",
+  "platform": "Linux",
+  "dependencies": {
+    "pydantic": "2.13.4",
+    "PyYAML": "6.0.3",
+    "filelock": "3.29.0",
+    "pytest": "9.0.2",
+    "setuptools": "82.0.1"
+  },
+  "source_tests": {
+    "tests": 114,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1
+  },
+  "wheel_tests": {
+    "tests": 114,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1
+  },
+  "real_corpus": {
+    "status": "not_verified",
+    "python_test": "skipped",
+    "node_baseline_exit_code": 1,
+    "reason": "Complete repository corpus not mounted; Node cannot read DATASET_MANIFEST.json"
+  },
+  "wheel_built": true,
+  "wheel_import_checked_outside_source_tree": true,
+  "packaging_excludes_corpus_pdf_tests_workspaces": true,
+  "dependency_environment": "host preinstalled packages reused; not a fresh dependency resolution",
+  "review": "self-review; no independent reviewer run",
+  "source_tree_sha": "5776dfb0c265f41bc8136dd29723dd2b0f55a651",
+  "tests_tree_sha": "197e5a046b6f50a73cc6aaeb5dd59b02a7147bec",
+  "wheel_sha256": "3b082c7d9d8facef34a80d58608ea32f42c4ab45fc26ddf5f7824d9bad8dbf19"
+}
