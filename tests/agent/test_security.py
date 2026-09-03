@@ -78,6 +78,27 @@ def test_store_rejects_symlinked_artifact_namespace(tmp_path: Path):
     assert list(outside.iterdir()) == []
 
 
+def test_recovery_rejects_symlinked_orphan_namespace_without_moving_target(
+    tmp_path: Path,
+):
+    workspace = tmp_path / "workspace"
+    store = ArtifactStore(workspace)
+    outside = tmp_path / "outside-orphan"
+    outside.mkdir()
+    sentinel = outside / "v00000001.json"
+    sentinel.write_text('{"external":true}', encoding="utf-8")
+    (workspace / "artifacts" / "orphan").symlink_to(
+        outside,
+        target_is_directory=True,
+    )
+
+    with pytest.raises(PathViolation):
+        store.recover()
+
+    assert sentinel.read_text(encoding="utf-8") == '{"external":true}'
+    assert not list((workspace / "recovery" / "orphans").glob("*.json"))
+
+
 def test_two_processes_cannot_enter_the_same_workspace(
     fixture_repo: Path,
 ):
