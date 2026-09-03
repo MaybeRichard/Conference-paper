@@ -1,15 +1,40 @@
-"""State and decision data only; transition execution belongs to later tasks."""
-from typing import Literal, Self
+"""Workflow state, decision, task, run and validation contracts."""
+from typing import Any, Literal, Self
 
-from pydantic import StrictBool, model_validator
+from pydantic import Field, StrictBool, model_validator
 
 from research_agent.schemas.base import ArtifactRef, Contract, Identifier, NonEmptyText
 
 GateKind = Literal["G1", "G2", "G3", "G4"]
-Stage = Literal["S0", "S1", "G1", "S2", "S3", "G2", "S4", "S5", "S6",
-                "G3", "S7", "S8", "S9", "S10", "G4", "S11"]
-StageStatus = Literal["not_started", "running", "completed", "waiting_for_user",
-                      "blocked", "needs_revision", "superseded", "failed"]
+Stage = Literal[
+    "S0",
+    "S1",
+    "G1",
+    "S2",
+    "S3",
+    "G2",
+    "S4",
+    "S5",
+    "S6",
+    "G3",
+    "S7",
+    "S8",
+    "S9",
+    "S10",
+    "G4",
+    "S11",
+]
+StageStatus = Literal[
+    "not_started",
+    "running",
+    "completed",
+    "waiting_for_user",
+    "blocked",
+    "needs_revision",
+    "superseded",
+    "failed",
+]
+RunStatus = Literal["completed", "waiting_for_user", "blocked", "failed"]
 
 
 class DecisionInput(Contract):
@@ -18,6 +43,17 @@ class DecisionInput(Contract):
     artifact: ArtifactRef
     actor: Literal["user"]
     action: Literal["approve"]
+
+
+class BriefRevisionInput(Contract):
+    expected: ArtifactRef
+    changes: dict[str, Any]
+
+    @model_validator(mode="after")
+    def validate_changes(self) -> Self:
+        if not self.changes:
+            raise ValueError("Brief revision changes cannot be empty")
+        return self
 
 
 class GateRecord(Contract):
@@ -57,5 +93,46 @@ class TaskResult(Contract):
             if self.reason is not None:
                 raise ValueError("Completed tasks cannot carry a failure reason")
         elif self.outputs or self.cache_hit or self.reason is None:
-            raise ValueError("Incomplete tasks require a reason and no completed outputs/cache hit")
+            raise ValueError(
+                "Incomplete tasks require a reason and no completed outputs/cache hit"
+            )
+        return self
+
+
+class RunResult(Contract):
+    workspace_id: Identifier
+    stage: Stage
+    status: RunStatus
+    reason: NonEmptyText | None = None
+    pending_gate: GateRecord | None = None
+    new_artifacts: tuple[ArtifactRef, ...] = ()
+
+    @model_validator(mode="after")
+    def validate_run_result(self) -> Self:
+        if self.status == "waiting_for_user":
+            if self.pending_gate is None or self.reason is not None or self.new_artifacts:
+                raise ValueError(
+                    "A waiting run requires one Gate and no reason or new Artifacts"
+                )
+        elif self.status in {"blocked", "failed"}:
+            if self.reason is None or self.pending_gate is not None or self.new_artifacts:
+                raise ValueError(
+                    "A blocked/failed run requires a reason and no Gate or new Artifacts"
+                )
+        elif self.reason is not None or self.pending_gate is not None:
+            raise ValueError("A completed run cannot carry a reason or pending Gate")
+        return self
+
+
+class ValidationReport(Contract):
+    valid: StrictBool
+    checked_artifacts: int = Field(strict=True, ge=0)
+    errors: tuple[NonEmptyText, ...] = ()
+
+    @model_validator(mode="after")
+    def validate_report(self) -> Self:
+        if self.valid and self.errors:
+            raise ValueError("A valid report cannot contain errors")
+        if not self.valid and not self.errors:
+            raise ValueError("An invalid report requires at least one error code")
         return self
