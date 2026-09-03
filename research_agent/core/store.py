@@ -125,18 +125,28 @@ class ArtifactStore:
             raise PathViolation("Cannot create or resolve workspace storage") from None
         self.lock_timeout = lock_timeout
         self._lock_path = self.root / ".workspace.lock"
+        self._lock = FileLock(str(self._lock_path), timeout=self.lock_timeout)
         self._fault_hook: Callable[[str], None] = lambda _checkpoint: None
         for relative in ("artifacts", "commits", "recovery/orphans", "recovery/faults"):
             (self.root / relative).mkdir(parents=True, exist_ok=True)
 
     @contextmanager
-    def _locked(self) -> Iterator[None]:
-        lock = FileLock(str(self._lock_path), timeout=self.lock_timeout)
+    def locked(self) -> Iterator["ArtifactStore"]:
+        """Hold the Workspace process lock across a multi-step service operation.
+
+        Calls to this store's read/commit/events methods are recursive while the
+        same instance holds the lock. Separate instances and processes block.
+        """
         try:
-            with lock:
-                yield
+            with self._lock.acquire(timeout=self.lock_timeout):
+                yield self
         except Timeout:
             raise BusyError("Workspace is busy; retry the operation") from None
+
+    @contextmanager
+    def _locked(self) -> Iterator[None]:
+        with self.locked():
+            yield
 
     @property
     def _events_path(self) -> Path:
