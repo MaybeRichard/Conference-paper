@@ -21,6 +21,7 @@ from uuid import uuid4
 from filelock import FileLock, Timeout
 
 from research_agent.core.errors import BusyError, ConflictError, IntegrityError, PathViolation
+from research_agent.core.paths import safe_child
 from research_agent.core.serialization import canonical_bytes, digest
 from research_agent.schemas.base import ArtifactRef
 
@@ -123,12 +124,23 @@ class ArtifactStore:
             self.root = root.resolve()
         except OSError:
             raise PathViolation("Cannot create or resolve workspace storage") from None
+
+        for relative in ("artifacts", "commits", "recovery/orphans", "recovery/faults"):
+            directory = safe_child(self.root, relative)
+            try:
+                directory.mkdir(parents=True, exist_ok=True)
+            except OSError:
+                raise PathViolation("Cannot create controlled Workspace directory") from None
+            if directory.is_symlink() or not directory.is_dir():
+                raise PathViolation("Controlled Workspace path must be a real directory")
+
+        for relative in (".workspace.lock", "events.jsonl", "projection.json"):
+            safe_child(self.root, relative)
+
         self.lock_timeout = lock_timeout
-        self._lock_path = self.root / ".workspace.lock"
+        self._lock_path = safe_child(self.root, ".workspace.lock")
         self._lock = FileLock(str(self._lock_path), timeout=self.lock_timeout)
         self._fault_hook: Callable[[str], None] = lambda _checkpoint: None
-        for relative in ("artifacts", "commits", "recovery/orphans", "recovery/faults"):
-            (self.root / relative).mkdir(parents=True, exist_ok=True)
 
     @contextmanager
     def locked(self) -> Iterator["ArtifactStore"]:
@@ -150,17 +162,21 @@ class ArtifactStore:
 
     @property
     def _events_path(self) -> Path:
-        return self.root / "events.jsonl"
+        return safe_child(self.root, "events.jsonl")
 
     @property
     def _projection_path(self) -> Path:
-        return self.root / "projection.json"
+        return safe_child(self.root, "projection.json")
 
     def _artifact_path(self, artifact_id: str, version: int) -> Path:
-        return self.root / "artifacts" / artifact_id / f"v{version:08d}.json"
+        return safe_child(
+            self.root,
+            f"artifacts/{artifact_id}/v{version:08d}.json",
+        )
 
     def _read_markers_locked(self) -> list[dict[str, Any]]:
-        files = sorted((self.root / "commits").glob("*.json"))
+        commit_root = safe_child(self.root, "commits")
+        files = sorted(commit_root.glob("*.json"))
         markers: list[dict[str, Any]] = []
         transactions: set[str] = set()
         references: set[tuple[str, int]] = set()
@@ -248,7 +264,7 @@ class ArtifactStore:
             marker["artifact"]["path"]
             for marker in markers
         }
-        artifact_root = self.root / "artifacts"
+        artifact_root = safe_child(self.root, "artifacts")
         for path in sorted(artifact_root.glob("*/v*.json")):
             relative = path.relative_to(self.root).as_posix()
             if relative in committed:
@@ -256,11 +272,9 @@ class ArtifactStore:
             match = _ARTIFACT_FILE.fullmatch(path.name)
             if match is None or path.parent.parent != artifact_root:
                 raise IntegrityError("Unexpected file in Artifact storage")
-            destination = (
-                self.root
-                / "recovery"
-                / "orphans"
-                / f"{path.parent.name}-{path.stem}-{uuid4().hex}.json"
+            destination = safe_child(
+                self.root,
+                f"recovery/orphans/{path.parent.name}-{path.stem}-{uuid4().hex}.json",
             )
             destination.parent.mkdir(parents=True, exist_ok=True)
             os.replace(path, destination)
@@ -292,7 +306,10 @@ class ArtifactStore:
             complete = self._parse_complete_event_lines(complete_raw) if complete_raw else []
             if complete != expected[: len(complete)]:
                 raise IntegrityError("Event log diverges before its partial tail")
-            fault = self.root / "recovery" / "faults" / f"events-{uuid4().hex}.jsonl"
+            fault = safe_child(
+                self.root,
+                f"recovery/faults/events-{uuid4().hex}.jsonl",
+            )
             _publish_bytes(fault, raw, replace=False)
             content = b"".join(canonical_bytes(event) + b"\n" for event in expected)
             _publish_bytes(path, content, replace=True)
@@ -408,7 +425,10 @@ class ArtifactStore:
                 "events": event_records,
             }
             marker = {**marker_body, "marker_hash": digest(marker_body)}
-            marker_path = self.root / "commits" / f"{sequence:020d}-{transaction_id}.json"
+            marker_path = safe_child(
+                self.root,
+                f"commits/{sequence:020d}-{transaction_id}.json",
+            )
             _publish_bytes(marker_path, canonical_bytes(marker), replace=False)
             self._fault_hook("after_commit_publish")
 
