@@ -27,6 +27,15 @@ from research_agent.core.errors import (
 from research_agent.schemas.workflow import BriefRevisionInput, DecisionInput
 
 
+class _CliUsageError(Exception):
+    """Internal argparse failure whose raw details must not leak to JSON output."""
+
+
+class _ArgumentParser(argparse.ArgumentParser):
+    def error(self, message: str) -> None:
+        raise _CliUsageError(message)
+
+
 class _StrictLoader(yaml.SafeLoader):
     pass
 
@@ -133,7 +142,7 @@ def _emit(value: Any, *, json_mode: bool) -> None:
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
+    parser = _ArgumentParser(
         prog="research-agent",
         description="Evidence-grounded Research Story Agent M1 foundations.",
     )
@@ -144,16 +153,25 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Emit exactly one compact JSON object on stdout.",
     )
-    commands = parser.add_subparsers(dest="command")
+    commands = parser.add_subparsers(
+        dest="command",
+        parser_class=_ArgumentParser,
+    )
 
     corpus = commands.add_parser("corpus", help="Read-only corpus operations")
-    corpus_commands = corpus.add_subparsers(dest="corpus_command", required=True)
+    corpus_commands = corpus.add_subparsers(
+        dest="corpus_command",
+        required=True,
+        parser_class=_ArgumentParser,
+    )
     verify = corpus_commands.add_parser("verify", help="Verify a pinned snapshot")
     verify.add_argument("--snapshot-id")
 
     workspace = commands.add_parser("workspace", help="Workspace operations")
     workspace_commands = workspace.add_subparsers(
-        dest="workspace_command", required=True
+        dest="workspace_command",
+        required=True,
+        parser_class=_ArgumentParser,
     )
     create = workspace_commands.add_parser("create", help="Create a G1 Workspace")
     create.add_argument("--domain", required=True)
@@ -163,7 +181,11 @@ def _build_parser() -> argparse.ArgumentParser:
     status.add_argument("workspace_id")
 
     gate = commands.add_parser("gate", help="User Gate operations")
-    gate_commands = gate.add_subparsers(dest="gate_command", required=True)
+    gate_commands = gate.add_subparsers(
+        dest="gate_command",
+        required=True,
+        parser_class=_ArgumentParser,
+    )
     show = gate_commands.add_parser("show", help="Show the pending Gate")
     show.add_argument("workspace_id")
     approve = gate_commands.add_parser("approve", help="Approve an exact Gate Artifact")
@@ -233,8 +255,19 @@ def _emit_error(code: str, message: str, *, json_mode: bool) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
+    arguments = list(sys.argv[1:] if argv is None else argv)
+    json_mode = "--json" in arguments
     parser = _build_parser()
-    args = parser.parse_args(argv)
+    try:
+        args = parser.parse_args(arguments)
+    except _CliUsageError:
+        _emit_error(
+            "input_error",
+            "Input or schema validation failed",
+            json_mode=json_mode,
+        )
+        return 2
+
     if args.command is None:
         parser.print_help()
         return 0
