@@ -40,6 +40,28 @@ def test_store_rejects_symlinked_control_directory(
     assert list(outside.iterdir()) == []
 
 
+@pytest.mark.parametrize(
+    "relative",
+    [".workspace.lock", "events.jsonl", "projection.json"],
+)
+def test_store_rejects_symlinked_control_file(
+    tmp_path: Path,
+    relative: str,
+):
+    workspace = tmp_path / "workspace"
+    ArtifactStore(workspace)
+    controlled = workspace / relative
+    controlled.unlink(missing_ok=True)
+    outside = tmp_path / f"outside-{relative.lstrip('.')}"
+    outside.write_text("unchanged", encoding="utf-8")
+    controlled.symlink_to(outside)
+
+    with pytest.raises(PathViolation):
+        ArtifactStore(workspace)
+
+    assert outside.read_text(encoding="utf-8") == "unchanged"
+
+
 def test_store_rejects_symlinked_artifact_namespace(tmp_path: Path):
     workspace = tmp_path / "workspace"
     store = ArtifactStore(workspace)
