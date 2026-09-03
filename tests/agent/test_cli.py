@@ -25,6 +25,15 @@ def run_cli(repo: Path, *arguments: str) -> subprocess.CompletedProcess[str]:
     )
 
 
+def run_json_raw(*arguments: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [sys.executable, "-m", "research_agent", "--json", *arguments],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+
 def output(result: subprocess.CompletedProcess[str]) -> dict:
     assert result.stdout.count("\n") <= 1, result.stdout
     return json.loads(result.stdout)
@@ -251,3 +260,12 @@ def test_cli_duplicate_yaml_keys_are_input_errors(fixture_repo: Path, tmp_path: 
 
     assert result.returncode == 2
     assert output(result)["error"]["code"] == "input_error"
+
+
+def test_cli_parser_errors_remain_machine_readable_in_json_mode():
+    result = run_json_raw("not-a-command")
+
+    assert result.returncode == 2
+    assert output(result)["error"]["code"] == "input_error"
+    assert result.stderr.count("\n") == 1
+    assert "usage:" not in result.stdout
