@@ -134,6 +134,49 @@ def test_producer_failure_is_recorded_without_completed_result_and_can_retry(tmp
     assert "private producer detail" not in str(payloads)
 
 
+def test_invalidated_result_is_preserved_and_recomputed_as_new_version(tmp_path: Path):
+    store = ArtifactStore(tmp_path / "ws")
+    calls: list[int] = []
+
+    def producer():
+        calls.append(1)
+        return {"attempt": len(calls)}
+
+    first = TaskRunner(store).run(
+        "stale_probe", (), {"version": "1"}, producer
+    )
+    first_ref = first.outputs[0]
+    store.commit(
+        "fixture_invalidation",
+        1,
+        {"outputs": [first_ref.model_dump(mode="json")]},
+        [
+            {
+                "type": "TaskOutputsInvalidated",
+                "outputs": [first_ref.model_dump(mode="json")],
+            }
+        ],
+        "fixture_invalidation_1",
+    )
+
+    recomputed = TaskRunner(ArtifactStore(tmp_path / "ws")).run(
+        "stale_probe", (), {"version": "1"}, producer
+    )
+    reused = TaskRunner(ArtifactStore(tmp_path / "ws")).run(
+        "stale_probe", (), {"version": "1"}, producer
+    )
+
+    assert first_ref.version == 1
+    assert recomputed.outputs[0].artifact_id == first_ref.artifact_id
+    assert recomputed.outputs[0].version == 2
+    assert recomputed.cache_hit is False
+    assert reused.outputs == recomputed.outputs
+    assert reused.cache_hit is True
+    assert calls == [1, 1]
+    assert store.read(first_ref)["result"] == {"attempt": 1}
+    assert store.read(recomputed.outputs[0])["result"] == {"attempt": 2}
+
+
 def test_corrupted_cached_output_is_rejected_not_silently_recomputed(tmp_path: Path):
     store = ArtifactStore(tmp_path / "ws")
     result = TaskRunner(store).run(
