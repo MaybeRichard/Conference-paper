@@ -4,9 +4,9 @@
 - 分支：`feat/research-agent-m1`
 - 状态：自动验收通过；等待研究者在 macOS 上完成最终本地确认；PR 继续保持 Draft。
 - 自动验收日期：2026-09-03
-- 主要实现验收提交：`1e6a2204771c8051a4d2e14ee61e6ef47d3c7a69`
-- GitHub Actions run：`33748988126`
-- 环境：Ubuntu 24.04、CPython 3.12.14、Node.js 24.19.0
+- 主要实现验收提交：`2968966d22aa950d63d46ba42e793cb73df7befb`
+- GitHub Actions run：`33749605435`
+- 环境：Ubuntu 24.04、CPython 3.12.14、Node.js 24.20.0
 
 ## 1. 自动验收结果
 
@@ -15,10 +15,10 @@ Node corpus inventory:
   2 passed, 0 failed, 0 skipped
 
 Python fixture/unit/security/acceptance:
-  182 passed, 1 real-corpus test deselected
+  183 passed, 1 real-corpus test deselected
 
 Python real corpus integration:
-  1 passed, 182 tests deselected
+  1 passed, 183 tests deselected
 
 Python compileall:
   passed
@@ -36,7 +36,7 @@ Real CLI smoke:
   unapproved G1 remained waiting_for_user
 
 Fresh locked environment:
-  183 passed
+  184 passed
 
 Protected repository diff:
   passed
@@ -45,7 +45,7 @@ Final CI worktree cleanliness:
   passed
 ```
 
-`requirements-dev.lock` 在独立虚拟环境中安装，随后项目以 `--no-deps -e .` 安装并复跑全部 183 个 Python 测试。锁定结果代表上述 Python/Linux 环境，不宣称所有平台使用相同二进制构建。
+`requirements-dev.lock` 在独立虚拟环境中安装，随后项目以 `--no-deps -e .` 安装并复跑全部 184 个 Python 测试。锁定结果代表上述 Python/Linux 环境，不宣称所有平台使用相同二进制构建。
 
 ## 2. 真实语料身份
 
@@ -63,7 +63,7 @@ Node 原完整性测试和 Python `CorpusAdapter` 真实集成测试均通过。
 
 ## 3. T8 红—绿记录
 
-T8 先增加攻击性测试，再修改生产代码。测试首次执行时出现：
+T8 先增加攻击性测试，再修改生产代码。第一批测试首次执行时出现：
 
 ```text
 4 failed, 176 passed
@@ -71,12 +71,19 @@ T8 先增加攻击性测试，再修改生产代码。测试首次执行时出�
 
 四个失败均指向同一个真实安全缺口：`ArtifactStore` 会跟随被替换成符号链接的 `artifacts/`、`commits/`、`recovery/` 或单个 Artifact 命名空间。
 
-修复后，受控目录、控制文件和 Artifact 路径统一通过安全子路径解析，并拒绝已存在的符号链接。随后完整 CI 达到 183 个 Python 测试全部通过。
+修复受控路径后，自动测试达到 183 个 Python 测试通过。最终差异自审又增加了一个更尖锐的用例：符号链接 Artifact 命名空间的外部目标已经包含伪造 `v*.json` 时，恢复流程也必须明确拒绝。该测试先出现：
+
+```text
+1 failed, 182 passed, 1 deselected
+```
+
+根因是恢复流程会静默忽略该符号链接命名空间。修复后，恢复会在孤儿扫描前验证所有 Artifact 命名空间，不跟随、不搬动外部目标文件；最终全量锁定环境达到 184 个 Python 测试通过。
 
 ## 4. T8 覆盖范围
 
 - 两个独立进程竞争同一 Workspace，第二个操作得到类型化 `busy` 和退出码 6；
 - `artifacts/`、`commits/`、`recovery/`、`.workspace.lock`、`events.jsonl`、`projection.json` 和 Artifact 命名空间的符号链接被拒绝；
+- 符号链接 Artifact 命名空间包含伪造孤儿文件时，恢复拒绝并保持外部目标原样；
 - 决策文件符号链接、重复 YAML key、隐式布尔、超大文件、未知字段和错误 actor 被拒绝；
 - 私密输入和 Producer 异常正文不进入 CLI 错误输出或持久化事件；
 - Artifact、commit marker、Event log 和 projection 的损坏及崩溃恢复；
