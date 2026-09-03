@@ -265,6 +265,20 @@ class ArtifactStore:
             for marker in markers
         }
         artifact_root = safe_child(self.root, "artifacts")
+        try:
+            namespaces = sorted(artifact_root.iterdir())
+        except OSError:
+            raise IntegrityError("Cannot enumerate Artifact storage") from None
+        for namespace in namespaces:
+            if _IDENTIFIER.fullmatch(namespace.name) is None:
+                raise IntegrityError("Unexpected Artifact namespace")
+            controlled = safe_child(
+                self.root,
+                f"artifacts/{namespace.name}",
+            )
+            if not controlled.is_dir():
+                raise IntegrityError("Artifact namespace is not a directory")
+
         for path in sorted(artifact_root.glob("*/v*.json")):
             relative = path.relative_to(self.root).as_posix()
             if relative in committed:
