@@ -1,0 +1,23 @@
+domain: medical_diffusion_2d
+target_venue: MICCAI
+scope:
+  dimensionality: 2d
+  allow_independent_ct_mri_slices: true
+  allow_2_5d: false
+  allow_3d: false
+  primary_tasks:
+    - generation
+    - synthesis
+    - local_editing
+    - image_translation
+    - data_augmentation
+policies:
+  fulltext_mode: hybrid
+  local_corpus_first: true
+  external_search_allowed: true
+  contribution_style: method_primary
+  data_resource_levels:
+    - L1
+    - L2
+    - L3
+  compute_hard_limit: null
