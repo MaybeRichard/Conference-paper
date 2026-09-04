@@ -6,7 +6,7 @@ import re
 from typing import Any
 
 from research_agent.adapters.corpus_adapter import CorpusAdapter, CorpusVerification
-from research_agent.core.errors import IntegrityError, ResearchAgentError
+from research_agent.core.errors import IntegrityError, PathViolation
 from research_agent.core.orchestrator import Orchestrator
 from research_agent.core.paths import safe_child
 from research_agent.core.store import ArtifactStore
@@ -76,9 +76,10 @@ class ResearchAgent:
     def validate_workspace(self, workspace_id: str) -> ValidationReport:
         """Validate committed storage and the derived Workspace projection.
 
-        Expected integrity/path failures are returned as a report so callers can
-        inspect a damaged Workspace without treating it as valid. Unexpected
-        programming failures still propagate.
+        Integrity and path failures are returned as a report so callers can
+        inspect a damaged Workspace without treating it as valid. Transient
+        operational failures such as a busy lock still propagate with their
+        original typed semantics.
         """
         try:
             self.get_status(workspace_id)
@@ -90,7 +91,7 @@ class ResearchAgent:
                 checked_artifacts=checked,
                 errors=(),
             )
-        except ResearchAgentError as error:
+        except (IntegrityError, PathViolation) as error:
             return ValidationReport(
                 valid=False,
                 checked_artifacts=0,
