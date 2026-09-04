@@ -2,13 +2,17 @@
 
 - 里程碑：M1，T1–T8
 - 分支：`feat/research-agent-m1`
-- 状态：自动验收通过；等待研究者在 macOS 上完成最终本地确认；PR 继续保持 Draft。
-- 自动验收日期：2026-09-03
-- 主要实现验收提交：`2968966d22aa950d63d46ba42e793cb73df7befb`
-- GitHub Actions run：`33749605435`
-- 环境：Ubuntu 24.04、CPython 3.12.14、Node.js 24.20.0
+- 状态：Ubuntu 与 macOS 自动验收均通过；等待独立代码审查；PR 继续保持 Draft。
+- 最终跨平台验收日期：2026-09-04
+- 当前验收分支头：`ec955f0013a68dd32e9ae55bfc6721bba03ff0d6`
+- Ubuntu GitHub Actions run：`33749802029`
+- macOS GitHub Actions run：`33825571151`（Research Agent CI #47）
 
-## 1. 自动验收结果
+## 1. 跨平台自动验收结果
+
+### Ubuntu
+
+环境：Ubuntu 24.04、CPython 3.12.14、Node.js 24.19.0。
 
 ```text
 Node corpus inventory:
@@ -45,11 +49,51 @@ Final CI worktree cleanliness:
   passed
 ```
 
-`requirements-dev.lock` 在独立虚拟环境中安装，随后项目以 `--no-deps -e .` 安装并复跑全部 184 个 Python 测试。锁定结果代表上述 Python/Linux 环境，不宣称所有平台使用相同二进制构建。
+`requirements-dev.lock` 在独立虚拟环境中安装，随后项目以 `--no-deps -e .` 安装并复跑全部 184 个 Python 测试。该锁定结果代表上述 Python/Linux 环境，不承诺所有平台使用相同二进制构建。
+
+### macOS
+
+环境：macOS 14.8.7、`macos-14-arm64` runner image、CPython 3.12.10、Node.js 24.18.0。
+
+```text
+Node corpus inventory:
+  2 passed, 0 failed, 0 skipped
+
+Python complete suite:
+  184 passed in 8.58s
+
+Python compileall:
+  passed
+
+Source/wheel build:
+  passed
+  research_story_agent-0.1.0.tar.gz
+  research_story_agent-0.1.0-py3-none-any.whl
+
+Wheel content audit:
+  passed, 28 entries
+
+Real macOS CLI flow:
+  corpus verify passed
+  Workspace created at G1 / waiting_for_user
+  G1 approval advanced to S2 / not_started
+  pending_gate became null
+  validation returned valid=true
+  cross-command state recovery passed
+  events included WorkspaceCreated, GateOpened and GateApproved
+  S2 returned blocked / stage_handler_not_installed
+  S2 exit code was 5
+
+Final macOS CI worktree cleanliness:
+  git diff --check passed
+  git status --short was empty
+```
+
+该 job 在 GitHub 托管的真实 macOS ARM64 环境中运行，满足 M1 的 macOS 平台验收。它不等同于覆盖每一台个人 Mac、所有 macOS 版本或用户本地配置；个人设备上的额外 smoke test 属于可选验证，不再作为本里程碑的发布阻塞条件。
 
 ## 2. 真实语料身份
 
-自动验收在完整仓库上核验：
+Ubuntu 与 macOS job 均在完整仓库上核验：
 
 ```text
 snapshot_id: snapshot_a6ef56370e3258f5
@@ -92,7 +136,8 @@ T8 先增加攻击性测试，再修改生产代码。第一批测试首次执�
 - 创建、等待、批准、关闭、重新打开、恢复、S2 诚实阻塞；
 - 工作流运行前后 corpus 以及除 `workspaces/` 外的 fixture 仓库文件保持不变；
 - PR 相对 `main` 未修改 `corpus/`、`scripts/`、`DATASET_MANIFEST.json`、`DATA_NOTICE.md` 和原 Node 完整性测试；
-- wheel 不包含 corpus、PDF、Workspace、cache、测试或密钥文件。
+- wheel 不包含 corpus、PDF、Workspace、cache、测试或密钥文件；
+- Ubuntu 与 macOS ARM64 上的完整语料、测试、构建和 CLI 边界行为一致。
 
 ## 5. 当前能力边界
 
@@ -108,13 +153,27 @@ exit code: 5
 
 这是有意的能力边界，不应解释为检索失败或空论文集合。
 
-## 6. 剩余发布条件
+## 6. 工作区边界说明
 
-在将 PR 从 Draft 转为可审阅或合并前，仍建议完成：
+GitHub Actions 使用干净 checkout，并在 Ubuntu 与 macOS job 末尾验证仓库状态为空。因此跨平台验收不受任何外部共享 checkout 中既有未提交修改影响。
 
-1. 研究者在 macOS / Python 3.12.13 / Node.js 24.19.0 上拉取最终分支头并按 `m1-quickstart.md` 复跑一次；
-2. 手动创建一个真实 Workspace，查看当前 G1，明确批准，再由新进程确认 S2 诚实阻塞和 Workspace 验证；
-3. 独立代码审查，重点检查持久化协议、路径边界、Gate 幂等及 CLI 错误语义；
-4. 根据审查结果决定保持 Draft、转 Ready for review 或合并。
+如果某个开发者本地工作区已有未提交语料修改，例如：
+
+```text
+M corpus/releases/ICML/2026/release_7cfdc05e5558192e/papers.jsonl
+```
+
+不得由 M1 验收流程擅自恢复、覆盖或提交。应将其视为该本地工作区的独立状态，并优先在干净 worktree/clone 中继续开发或审查。
+
+## 7. 剩余发布条件
+
+在将 PR 从 Draft 转为可审阅或合并前，剩余必要步骤为：
+
+1. 完成独立代码审查，重点检查持久化协议、路径边界、Gate 幂等、任务缓存/失效以及 CLI 错误语义；
+2. 修复审查发现的 Critical/Important 问题，并重新运行 Ubuntu 与 macOS 验收；
+3. 若审查无阻塞问题，将 PR 从 Draft 转为 Ready for review；
+4. 在确认分支头未变化且检查仍为绿色后，决定是否合并到 `main`。
+
+个人实体 Mac 上的额外运行可以增加对特定机器配置的信心，但 GitHub 托管 `macos-14-arm64` 已完成本里程碑所要求的 macOS 平台级验证。
 
 本记录不自动批准真实研究课题，也不自动合并 `main`。
