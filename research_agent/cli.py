@@ -269,6 +269,13 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     if args.command is None:
+        if args.json:
+            _emit_error(
+                "input_error",
+                "Input or schema validation failed",
+                json_mode=True,
+            )
+            return 2
         parser.print_help()
         return 0
 
