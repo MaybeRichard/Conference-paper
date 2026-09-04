@@ -15,7 +15,11 @@ from pydantic import ValidationError
 import yaml
 
 from research_agent.adapters.corpus_adapter import CorpusAdapter
-from research_agent.core.domain_profile import DomainProfile, load_domain_profile
+from research_agent.core.domain_profile import (
+    BriefScopeBoundary,
+    DomainProfile,
+    load_domain_profile,
+)
 from research_agent.core.errors import ConflictError, IntegrityError, PathViolation
 from research_agent.core.gates import gate_for, validate_approval
 from research_agent.core.paths import safe_child
@@ -75,6 +79,50 @@ def _brief_from_payload(payload: dict[str, Any]) -> ResearchBrief:
         return ResearchBrief.model_validate({key: payload[key] for key in fields})
     except (KeyError, ValidationError):
         raise IntegrityError("Stored ResearchBrief is missing or invalid") from None
+
+
+def _profile_from_payload(payload: dict[str, Any]) -> DomainProfile:
+    try:
+        return DomainProfile.model_validate(
+            {
+                key: payload[key]
+                for key in ("domain", "target_venue", "scope", "policies")
+            }
+        )
+    except (KeyError, ValidationError):
+        raise IntegrityError(
+            "Stored effective configuration is missing or invalid"
+        ) from None
+
+
+def _validate_brief_boundary(brief: ResearchBrief, profile: DomainProfile) -> None:
+    try:
+        boundary = BriefScopeBoundary.model_validate(
+            {
+                key: brief.scope[key]
+                for key in BriefScopeBoundary.model_fields
+            }
+        )
+    except (KeyError, ValidationError):
+        raise IntegrityError(
+            "Stored ResearchBrief scope violates the frozen domain boundary"
+        ) from None
+
+    if brief.target_venue != profile.target_venue:
+        raise IntegrityError(
+            "Stored ResearchBrief target venue disagrees with frozen configuration"
+        )
+    if (
+        boundary.allow_independent_ct_mri_slices
+        and not profile.scope.allow_independent_ct_mri_slices
+    ):
+        raise IntegrityError(
+            "Stored ResearchBrief expands the frozen slice scope"
+        )
+    if not set(boundary.primary_tasks).issubset(profile.scope.primary_tasks):
+        raise IntegrityError(
+            "Stored ResearchBrief expands the frozen primary-task scope"
+        )
 
 
 class WorkspaceService:
@@ -140,12 +188,21 @@ class WorkspaceService:
             raise IntegrityError("Workspace state identity mismatch")
         config_ref = _as_ref(context.get("effective_config"), field="effective_config")
         brief_ref = _as_ref(context.get("research_brief"), field="research_brief")
+        if config_ref.artifact_id != "effective_config":
+            raise IntegrityError("Workspace context uses an unexpected configuration Artifact")
+        if brief_ref.artifact_id != "research_brief":
+            raise IntegrityError("Workspace context uses an unexpected ResearchBrief Artifact")
+        if state.pending_gate is not None and state.pending_gate.artifact != brief_ref:
+            raise IntegrityError("Pending Gate is not bound to the current ResearchBrief")
+
         config = store.read(config_ref)
         brief = _brief_from_payload(store.read(brief_ref))
+        profile = _profile_from_payload(config)
+        _validate_brief_boundary(brief, profile)
         if (
             config.get("snapshot_id") != state.snapshot_id
             or brief.snapshot_id != state.snapshot_id
-            or brief.domain != config.get("domain")
+            or brief.domain != profile.domain
         ):
             raise IntegrityError(
                 "Workspace state disagrees with its frozen configuration or ResearchBrief"
@@ -186,7 +243,7 @@ class WorkspaceService:
         brief_ref: ArtifactRef,
     ) -> None:
         projection = self._projection_payload(state, config_ref, brief_ref)
-        destination = path / "workspace.yaml"
+        destination = safe_child(path, "workspace.yaml")
         expected = yaml.safe_dump(
             projection,
             allow_unicode=True,
