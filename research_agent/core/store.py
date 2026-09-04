@@ -184,7 +184,16 @@ class ArtifactStore:
             match = _COMMIT_FILE.fullmatch(path.name)
             if match is None or int(match.group(1)) != expected_sequence:
                 raise IntegrityError("Commit markers are missing, duplicated or out of order")
-            marker = _decode_mapping(path.read_bytes(), context="commit marker")
+            try:
+                marker_path = safe_child(self.root, f"commits/{path.name}")
+                if not marker_path.is_file():
+                    raise IntegrityError("Commit marker is missing or not a regular file")
+                raw = marker_path.read_bytes()
+            except PathViolation:
+                raise
+            except OSError:
+                raise IntegrityError("Cannot read commit marker") from None
+            marker = _decode_mapping(raw, context="commit marker")
             marker_hash = marker.get("marker_hash")
             body = {key: value for key, value in marker.items() if key != "marker_hash"}
             if not isinstance(marker_hash, str) or digest(body) != marker_hash:
