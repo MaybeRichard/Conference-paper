@@ -28,6 +28,18 @@ class CorpusVerification:
 
 
 @dataclass(frozen=True)
+class LocatedRecord:
+    """Unmodified record plus a locator in a hash-verified source shard.
+
+    record_number is 1-based among nonempty JSONL records, NOT physical lines.
+    """
+    record: dict
+    shard_path: str
+    shard_sha256: str
+    record_number: int
+
+
+@dataclass(frozen=True)
 class _Shard:
     relative: str
     checksum: str
@@ -225,3 +237,11 @@ class CorpusAdapter:
         self._verify(snapshot)
         for shard in snapshot.shards:
             yield from self._scan_shard(shard)
+
+    def iter_located_records(self, snapshot_id: str) -> Iterator[LocatedRecord]:
+        """Stream verified records with provenance; publish only after exhaustion."""
+        snapshot = self._load_snapshot(snapshot_id)
+        self._verify(snapshot)
+        for shard in snapshot.shards:
+            for number, record in enumerate(self._scan_shard(shard), 1):
+                yield LocatedRecord(record, shard.relative, shard.checksum, number)
