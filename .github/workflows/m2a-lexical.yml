@@ -1,0 +1,45 @@
+name: M2A Lexical Retrieval
+
+on:
+  push:
+    branches: [feat/research-agent-m2a-lexical]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: m2a-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7.0.0
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v7.0.0
+        with:
+          node-version: '24'
+      - name: Install and verify baseline
+        run: |
+          python -m pip install -e '.[dev]'
+          node --test tests/conference-corpus.test.mjs
+          python -m pytest tests/agent -q -ra
+          git diff --check
+          test -z "$(git status --short)"
+      - name: Archive committed inputs only
+        run: |
+          git archive --format=zip --output="$RUNNER_TEMP/committed-source.zip" HEAD
+          git rev-parse HEAD > "$RUNNER_TEMP/source-commit.txt"
+          sha256sum "$RUNNER_TEMP/committed-source.zip" > "$RUNNER_TEMP/source-sha256.txt"
+      - uses: actions/upload-artifact@v7.0.1
+        with:
+          name: m2a-committed-source
+          path: |
+            ${{ runner.temp }}/committed-source.zip
+            ${{ runner.temp }}/source-commit.txt
+            ${{ runner.temp }}/source-sha256.txt
+          retention-days: 3
