@@ -97,3 +97,34 @@ class ResearchAgent:
                 checked_artifacts=0,
                 errors=(error.code,),
             )
+
+    def build_index(self, snapshot_id: str | None = None) -> dict:
+        """Build a derived index, without advancing any Workspace or Gate."""
+        from research_agent.retrieval.index import LexicalIndex
+        return LexicalIndex(self.repo_root).build(snapshot_id)
+
+    def verify_index(self, index_id: str | None = None) -> dict:
+        from research_agent.retrieval.index import LexicalIndex
+        return LexicalIndex(self.repo_root).verify(index_id)
+
+    def index_status(self, index_id: str | None = None) -> dict:
+        from research_agent.retrieval.index import LexicalIndex
+        return LexicalIndex(self.repo_root).status(index_id)
+
+    def search_papers(
+        self, query: str, *, index_id: str | None = None, limit: int = 50,
+        per_channel: int = 500, conference: str | None = None,
+        year_from: int | None = None, year_to: int | None = None, report: bool = False,
+    ) -> dict:
+        """Standalone exploratory search; does not perform S2 or approve G2."""
+        from research_agent.retrieval.index import LexicalIndex
+        from research_agent.retrieval.search import search
+        from research_agent.retrieval.report import write_report
+        if type(report) is not bool:
+            raise ValueError("report must be a boolean")
+        result = search(LexicalIndex(self.repo_root), query, index_id=index_id,
+                        limit=limit, per_channel=per_channel, conference=conference,
+                        year_from=year_from, year_to=year_to)
+        if report:
+            result["report"] = write_report(self.repo_root, result)
+        return result

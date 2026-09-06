@@ -144,7 +144,7 @@ def _emit(value: Any, *, json_mode: bool) -> None:
 def _build_parser() -> argparse.ArgumentParser:
     parser = _ArgumentParser(
         prog="research-agent",
-        description="Evidence-grounded Research Story Agent M1 foundations.",
+        description="Research Story Agent M1 foundations with M2A exploratory lexical retrieval.",
     )
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     parser.add_argument("--repo", type=Path, help="Repository root containing corpus/")
@@ -204,6 +204,22 @@ def _build_parser() -> argparse.ArgumentParser:
 
     validate = commands.add_parser("validate", help="Validate one Workspace")
     validate.add_argument("workspace_id")
+    index = commands.add_parser("index", help="Build/verify/status a pinned lexical index")
+    index_commands = index.add_subparsers(dest="index_command", required=True, parser_class=_ArgumentParser)
+    build = index_commands.add_parser("build")
+    build.add_argument("--snapshot-id")
+    for name in ("verify", "status"):
+        command = index_commands.add_parser(name)
+        command.add_argument("--index-id")
+    search = commands.add_parser("search", help="Standalone candidate search; does not advance S2")
+    search.add_argument("--query", required=True)
+    search.add_argument("--index-id")
+    search.add_argument("--limit", type=int, default=50)
+    search.add_argument("--per-channel", type=int, default=500)
+    search.add_argument("--conference")
+    search.add_argument("--year-from", type=int)
+    search.add_argument("--year-to", type=int)
+    search.add_argument("--report", action="store_true", help="Create report and return_bundle.zip below indexes/reports")
     return parser
 
 
@@ -212,6 +228,14 @@ def _dispatch(args: argparse.Namespace) -> tuple[Any, int]:
         raise ValueError("--repo is required for repository operations")
     agent = ResearchAgent(args.repo)
 
+    if args.command == "index":
+        if args.index_command == "build": return agent.build_index(args.snapshot_id), 0
+        if args.index_command == "verify": return agent.verify_index(args.index_id), 0
+        return agent.index_status(args.index_id), 0
+    if args.command == "search":
+        return agent.search_papers(args.query, index_id=args.index_id, limit=args.limit,
+                                  per_channel=args.per_channel, conference=args.conference,
+                                  year_from=args.year_from, year_to=args.year_to, report=args.report), 0
     if args.command == "corpus" and args.corpus_command == "verify":
         return agent.verify_corpus(args.snapshot_id), 0
     if args.command == "workspace" and args.workspace_command == "create":
