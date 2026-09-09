@@ -18,7 +18,7 @@ def decision_for(state, request_id: str = "user_approval_1") -> DecisionInput:
     )
 
 
-def test_m1_stops_honestly_at_missing_retrieval(fixture_repo: Path):
+def test_s2_blocks_honestly_when_index_is_missing(fixture_repo: Path):
     agent = ResearchAgent(fixture_repo)
     workspace = agent.create_workspace(
         "二维医学图像扩散生成", "medical_diffusion_2d"
@@ -49,7 +49,7 @@ def test_m1_stops_honestly_at_missing_retrieval(fixture_repo: Path):
     assert (result.stage, result.status, result.reason) == (
         "S2",
         "blocked",
-        "stage_handler_not_installed",
+        "index_not_built",
     )
     assert result.pending_gate is None
     assert result.new_artifacts == ()

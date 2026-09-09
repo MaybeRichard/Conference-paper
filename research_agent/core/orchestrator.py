@@ -23,9 +23,11 @@ class Orchestrator:
                 pending_gate=state.pending_gate,
             )
 
+        if state.stage == "S2" and state.status == "not_started":
+            return self.workspaces.run_s2(workspace_id)
+
         # S0/S1 are performed deterministically by WorkspaceService.create().
-        # M1 intentionally has no S2 retrieval handler. Returning a blocked run
-        # is evidence of the missing capability, not a synthetic empty result.
+        # Any stage without an installed handler remains an honest block.
         return RunResult(
             workspace_id=state.workspace_id,
             stage=state.stage,
