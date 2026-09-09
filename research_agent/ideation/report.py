@@ -78,6 +78,9 @@ def write_idea_report(repo_root: Path, result: dict) -> dict:
             "created_at": datetime.now(timezone.utc).isoformat(),
             "json_path": str(destination / "idea_draft.json"),
             "markdown_path": str(destination / "idea_draft.md"),
+            # Keep the existing retrieval report convention alongside the
+            # explicit JSON/Markdown names used by this artifact.
+            "report_path": str(destination / "idea_draft.md"),
             "bundle_path": str(destination / "return_bundle.zip"),
         }
     finally:
