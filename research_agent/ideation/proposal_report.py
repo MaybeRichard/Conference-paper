@@ -21,6 +21,23 @@ def _only(value, fields):
     return {key: deepcopy(value[key]) for key in fields if key in value}
 
 
+def _chinese_intro(card: dict) -> str:
+    """Give the reader a short Chinese evidence description without internals."""
+    themes = set(card.get("lexical_themes") or [])
+    labels = {
+        "retinal": "视网膜或眼底图像",
+        "staining": "病理图像与虚拟染色",
+        "segmentation": "医学图像分割",
+        "efficiency": "扩散模型的采样效率",
+    }
+    focus = "、".join(labels[name] for name in ("retinal", "staining", "segmentation", "efficiency") if name in themes)
+    if not focus:
+        focus = "医学图像生成"
+    if card.get("abstract_status") == "missing":
+        return f"这条证据围绕{focus}提供标题线索；摘要缺失，因此当前只把它作为背景记录，不据此判断方法效果。"
+    return f"这条证据围绕{focus}展开，摘要线索与当前提案的研究背景相关。它用于帮助定位问题和比较方向，具体方法、数据与实验结论仍需回到论文原文核对。"
+
+
 def export_payload(result: dict) -> dict:
     if result.get("schema_version") == "research-package-v1":
         result = result.get("proposal_set", {})
@@ -32,6 +49,7 @@ def export_payload(result: dict) -> dict:
     for item in result["evidence_cards"]:
         card = _only(item, ("evidence_id", "record_key", "paper_id", "title", "conference", "year", "abstract_status", "abstract_excerpt", "support_relation", "lexical_themes"))
         card["abstract_excerpt"] = card.get("abstract_excerpt", "")[:320]
+        card["intro_zh"] = _chinese_intro(card)
         card["provenance"] = _only(item["provenance"], ("shard_path", "shard_sha256", "record_number", "record_sha256"))
         out["evidence_cards"].append(card)
     evidence_ids = {c["evidence_id"] for c in out["evidence_cards"]}
@@ -83,7 +101,11 @@ def markdown(result: dict) -> str:
 def html_dashboard(result: dict) -> str:
     """Render a self-contained editorial research dashboard."""
     payload = export_payload(result)
-    embedded = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+    dashboard_payload = deepcopy(payload)
+    for card in dashboard_payload.get("evidence_cards", []):
+        for field in ("record_key", "paper_id", "abstract_excerpt", "provenance"):
+            card.pop(field, None)
+    embedded = json.dumps(dashboard_payload, ensure_ascii=False, separators=(",", ":"))
     # Prevent an excerpt or title from terminating the data script element.
     embedded = embedded.replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
     return f'''<!doctype html>
@@ -126,7 +148,7 @@ function renderNav(){{$('#proposal-nav').innerHTML=proposals.map((p,i)=>`<button
 function list(v){{return (v||[]).map(x=>`<li>${{esc(x)}}</li>`).join('')}}
 function renderProposal(){{const p=proposals[active]; if(!p) return; const bp=p.experiment_blueprint||{{}}; $('#proposal-index').textContent=`${{String(active+1).padStart(2,'0')}} / ${{String(proposals.length).padStart(2,'0')}}`;$('#proposal').innerHTML=`<div class="proposal-head"><div><div class="kicker">${{esc(p.theme)}} · evidence-bound hypothesis</div><h3>${{esc(p.title)}}</h3></div><span class="tag">HYPOTHESIS</span></div><div class="label">研究问题</div><div class="question">${{esc(p.research_question)}}</div><div class="twocol"><div><div class="label">机制假设</div><div class="mechanism">${{esc(p.mechanism)}}</div></div><div><div class="label">背景证据</div><div class="evidence-chips">${{(p.evidence_ids||[]).map(id=>`<span class="chip">${{esc(id)}}</span>`).join('')}}</div></div></div><div class="blueprint"><h4>实验蓝图 / Experiment blueprint</h4><div class="blueprint-grid"><div class="blueprint-cell"><div class="label">基线</div>${{esc(bp.baseline)}}</div><div class="blueprint-cell"><div class="label">主指标</div>${{esc(bp.primary_measurement)}}</div><div class="blueprint-cell"><div class="label">消融</div><ul>${{list(bp.ablations)}}</ul></div><div class="blueprint-cell"><div class="label">失败条件</div><ul>${{list(bp.failure_criteria)}}</ul></div></div></div>`;}}
 function renderEvidence(){{const p=proposals[active]||{{}};const ids=new Set(p.evidence_ids||[]);const shown=cards.filter(c=>ids.has(c.evidence_id));$('#evidence-list').innerHTML=shown.length?shown.map((c,i)=>`<button class="evidence-row ${{i===0?'selected':''}}" data-e="${{esc(c.evidence_id)}}"><span class="evidence-no">${{String(i+1).padStart(2,'0')}}</span><span><span class="evidence-title">${{esc(c.title)}}</span><span class="evidence-meta">${{esc(c.conference)}} · ${{esc(c.year)}} · ${{esc(c.paper_id)}}</span></span><span class="evidence-theme">${{esc((c.lexical_themes||[]).join(' / '))}}</span></button>`).join(''):'<div class="evidence-row">暂无可用证据卡</div>';document.querySelectorAll('[data-e]').forEach((b,i)=>b.onclick=()=>{{document.querySelectorAll('[data-e]').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');showDetail(shown.find(c=>c.evidence_id===b.dataset.e))}});showDetail(shown[0])}}
-function showDetail(c){{if(!c){{$('#detail').innerHTML='<div class="label">暂无详情</div>';return}}const p=c.provenance||{{}};$('#detail').innerHTML=`<div class="label">${{esc(c.evidence_id)}} · ${{esc(c.abstract_status)}}</div><h4>${{esc(c.title)}}</h4><p>${{esc(c.abstract_excerpt)||'摘要缺失；当前只核对标题和来源定位。'}}</p><div class="provenance">${{esc(c.conference)}} / ${{esc(c.year)}} · record_key ${{esc(c.record_key)}}<br>来源：${{esc(p.shard_path)}} · 非空记录 ${{esc(p.record_number)}}<br>record SHA256：${{esc(p.record_sha256)}}</div>`}}
+function showDetail(c){{if(!c){{$('#detail').innerHTML='<div class="label">暂无详情</div>';return}}$('#detail').innerHTML=`<div class="label">中文证据介绍</div><p>${{esc(c.intro_zh)}}</p>`}}
 function render(){{renderNav();renderProposal();renderEvidence()}} $('#evidence-count').textContent=cards.length;$('#proposal-count').textContent=proposals.length;$('#missing-count').textContent=DATA.source_search?.coverage?.missing_abstract_in_union??'—';$('#snapshot').textContent=`快照 ${{DATA.source_search?.snapshot_id||'—'}} · 索引 ${{DATA.source_search?.index_id||'—'}}`;$('#footer-source').textContent=`${{DATA.source_search?.returned_records??cards.length}} 条候选 · ${{DATA.generation_method||'offline_rules_v1'}}`;$('#limitations').innerHTML=(DATA.limitations||[]).map(x=>`<li>${{esc(x)}}</li>`).join('');render();$('#theme').onclick=()=>{{document.body.classList.toggle('dark');$('#theme').textContent=document.body.classList.contains('dark')?'切换浅色':'切换深色'}};</script></body></html>'''
 
 
