@@ -175,3 +175,27 @@ class ResearchAgent:
             report=False,
         )
         return screen_candidates(retrieved)
+
+    def propose_ideas(
+        self, query: str, *, index_id: str | None = None, limit: int = 50,
+        per_channel: int = 500, conference: str | None = None,
+        year_from: int | None = None, year_to: int | None = None, report: bool = False,
+    ) -> dict:
+        """Run local retrieval, lexical screening, and evidence-bound proposals."""
+        from research_agent.ideation.proposals import build_proposals
+        if type(report) is not bool:
+            raise ValueError("report must be a boolean")
+        core = self.screen_papers(
+            query, index_id=index_id, limit=limit, per_channel=per_channel,
+            conference=conference, year_from=year_from, year_to=year_to,
+        )
+        result = build_proposals(self.repo_root, core)
+        if report and result["status"] == "completed":
+            from research_agent.ideation.proposal_report import write_proposal_report
+            result["report"] = write_proposal_report(self.repo_root, result)
+        return result
+
+    def export_workspace(self, workspace_id: str) -> dict:
+        """Export the pending G4 proposals or the final approved draft package."""
+        from research_agent.core.proposal_workflow import export_workspace
+        return export_workspace(self._workspaces, workspace_id)

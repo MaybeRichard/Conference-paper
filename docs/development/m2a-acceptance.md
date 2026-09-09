@@ -1,6 +1,6 @@
 # M2A acceptance and review notes
 
-Scope: local lexical retrieval plus the bounded S2→G3 workflow slice. This remains an incomplete research Agent: it does not perform S4/S5/S6 full-text evidence work, online enrichment, semantic eligibility, or novelty assessment.
+Scope: local lexical retrieval plus the bounded S2→S7→G4→S11 workflow slice. This remains an incomplete research Agent: it does not perform S4/S5/S6 full-text evidence work, online enrichment, semantic eligibility, novelty assessment, scientific validation, or polished story generation.
 Base: M1 `3c712fb722ca9fc2268a88eebd9f6a14e8a898f1`. All changes belong to the separate `feat/research-agent-m2a-lexical` branch.
 
 ## Local evidence, 2026-09-06 (Singapore date)
@@ -53,4 +53,4 @@ Check the exact PR head's Actions result rather than transferring an old green r
 - Filesystem checks assume a trusted single-user checkout and reject static symlinks; not an OS sandbox against hostile concurrent path replacement.
 - Database checksum verifies the specific built index; bit-identical rebuilds across SQLite versions are not promised.
 - Internal review only; no independent reviewer or GitHub approval is claimed.
-- The 190 M1 tests remain intact and `run` continues to stop at S2 until a genuine workflow stage is installed.
+- G4 is an explicit user Gate over the immutable proposal artifact. S11 only packages the approved draft and records `scientific_validation=not_performed`; it does not claim a validated research result.

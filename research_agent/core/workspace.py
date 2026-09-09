@@ -554,9 +554,8 @@ class WorkspaceService:
             core_payload = dict(screened)
             core_payload.pop("artifact_sha256", None)
             core_payload["source_idea"] = idea_ref.model_dump(mode="json")
-            # Keep the screening module's self-contained content hash as a
-            # checksum of the payload body; ArtifactStore separately hashes
-            # the complete persisted payload for its ArtifactRef.
+            # The content checksum covers the payload body. ArtifactStore
+            # separately hashes the complete persisted payload for its ref.
             core_payload["artifact_sha256"] = digest(core_payload)
             artifact_sha256 = digest(core_payload)
             core_ref = ArtifactRef(
@@ -609,6 +608,52 @@ class WorkspaceService:
                 status="waiting_for_user",
                 pending_gate=gate,
             )
+
+    def run_s7(self, workspace_id: str) -> RunResult:
+        """Generate evidence-bound idea proposals after G3 approval."""
+        from research_agent.core.gates import gate_for
+        from research_agent.core.proposal_workflow import approved_source
+        from research_agent.ideation.proposals import build_proposals
+
+        path = self._workspace_path(workspace_id)
+        store = ArtifactStore(path)
+        with store.locked():
+            state, config_ref, brief_ref = self._state_context_with_store(
+                workspace_id, path, store
+            )
+            if state.stage != "S7" or state.status != "not_started":
+                return RunResult(
+                    workspace_id=workspace_id,
+                    stage=state.stage,
+                    status="blocked",
+                    reason="s7_not_ready",
+                )
+            core_ref = approved_source(store, workspace_id, "G3", "core_paper_set")
+            if core_ref is None:
+                return RunResult(workspace_id=workspace_id, stage="S7", status="blocked", reason="s7_source_core_missing")
+            core = store.read(core_ref)
+            try:
+                proposals = build_proposals(self.repo_root, core)
+            except (TypeError, ValueError):
+                return RunResult(workspace_id=workspace_id, stage="S7", status="blocked", reason="s7_source_provenance_invalid")
+            if proposals.get("status") != "completed":
+                return RunResult(workspace_id=workspace_id, stage="S7", status="blocked", reason=proposals.get("reason", "s7_insufficient_evidence"))
+            proposals = dict(proposals)
+            proposals["source_core_ref"] = core_ref.model_dump(mode="json")
+            proposals["workspace_id"] = workspace_id
+            proposal_ref = ArtifactRef(artifact_id="idea_proposal_set", version=1, sha256=digest(proposals))
+            gate = gate_for("G4", proposal_ref)
+            new_state = WorkspaceState(workspace_id=workspace_id, snapshot_id=state.snapshot_id, stage="G4", status="waiting_for_user", pending_gate=gate)
+            events = [
+                {"type": "S7Completed", "workspace_id": workspace_id, "artifact": proposal_ref.model_dump(mode="json"), "source_core": core_ref.model_dump(mode="json"), "snapshot_id": state.snapshot_id},
+                {"type": "GateOpened", "workspace_id": workspace_id, "gate": gate.model_dump(mode="json")},
+                {"type": "WorkspaceStateChanged", "workspace_id": workspace_id, "state": new_state.model_dump(mode="json"), "effective_config": config_ref.model_dump(mode="json"), "research_brief": brief_ref.model_dump(mode="json")},
+            ]
+            committed = store.commit("idea_proposal_set", 1, proposals, events, f"s7_{workspace_id}_{core_ref.version}")
+            if committed != proposal_ref:
+                raise IntegrityError("S7 proposal reference changed during commit")
+            self._write_projection(path, new_state, config_ref, brief_ref)
+            return RunResult(workspace_id=workspace_id, stage="G4", status="waiting_for_user", pending_gate=gate)
 
     def revise_brief(
         self,

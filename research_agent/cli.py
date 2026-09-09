@@ -231,6 +231,17 @@ def _build_parser() -> argparse.ArgumentParser:
     draft.add_argument("--year-from", type=int)
     draft.add_argument("--year-to", type=int)
     draft.add_argument("--report", action="store_true")
+    propose = idea_commands.add_parser("propose", help="Generate evidence-bound HYPOTHESIS proposals")
+    propose.add_argument("--query", required=True)
+    propose.add_argument("--index-id")
+    propose.add_argument("--limit", type=int, default=50)
+    propose.add_argument("--per-channel", type=int, default=500)
+    propose.add_argument("--conference")
+    propose.add_argument("--year-from", type=int)
+    propose.add_argument("--year-to", type=int)
+    propose.add_argument("--report", action="store_true")
+    export = commands.add_parser("export", help="Export proposals at G4 or after final packaging")
+    export.add_argument("workspace_id")
     return parser
 
 
@@ -252,6 +263,13 @@ def _dispatch(args: argparse.Namespace) -> tuple[Any, int]:
                                 per_channel=args.per_channel, conference=args.conference,
                                 year_from=args.year_from, year_to=args.year_to,
                                 report=args.report), 0
+    if args.command == "idea" and args.idea_command == "propose":
+        result = agent.propose_ideas(args.query, index_id=args.index_id, limit=args.limit,
+                                   per_channel=args.per_channel, conference=args.conference,
+                                   year_from=args.year_from, year_to=args.year_to, report=args.report)
+        return result, 5 if result["status"] == "blocked" else 0
+    if args.command == "export":
+        return agent.export_workspace(args.workspace_id), 0
     if args.command == "corpus" and args.corpus_command == "verify":
         return agent.verify_corpus(args.snapshot_id), 0
     if args.command == "workspace" and args.workspace_command == "create":

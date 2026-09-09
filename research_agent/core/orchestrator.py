@@ -32,6 +32,16 @@ class Orchestrator:
         if state.stage == "S4" and state.status == "not_started":
             return self.workspaces.run_s3(workspace_id)
 
+        if state.stage == "S7" and state.status == "not_started":
+            return self.workspaces.run_s7(workspace_id)
+
+        if state.stage == "S11":
+            if state.status == "completed":
+                return RunResult(workspace_id=workspace_id, stage="S11", status="completed")
+            if state.status == "not_started":
+                from research_agent.core.proposal_workflow import run_final_package
+                return run_final_package(self.workspaces, workspace_id)
+
         # S0/S1 are performed deterministically by WorkspaceService.create().
         # Any stage without an installed handler remains an honest block.
         return RunResult(

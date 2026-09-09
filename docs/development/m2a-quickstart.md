@@ -1,6 +1,6 @@
 # M2A：实际可用的本地论文候选检索
 
-本批包含 M2 的本地词法检索和离线 S2→G3 最小纵向切片，不是完整 S4/S5/S6。`search` 仍是独立探索命令；G1 获批后，`run` 会读取固定索引生成带 provenance 的 idea 草案并打开 G2，G2 获批后执行确定性的 S3 去重/聚类并打开 G3。无需 GPU、模型密钥或联网服务；安装 Python 依赖时仍需可用包源。
+本批包含 M2 的本地词法检索和离线 S2→S7→G4→S11 最小纵向切片，不是完整研究闭环。`search` 仍是独立探索命令；G1 获批后，`run` 会读取固定索引生成带 provenance 的 idea 草案并打开 G2，G2 获批后执行确定性的 S3 去重/聚类并打开 G3，G3 获批后生成带证据卡的 HYPOTHESIS 提案并打开 G4，G4 获批后固化一个待科学验证的研究包。无需 GPU、模型密钥或联网服务；安装 Python 依赖时仍需可用包源。
 
 ## 使用前
 
@@ -52,6 +52,21 @@ python -m research_agent --repo "$PWD" --json idea draft \
 ```
 
 该命令输出 `idea-draft-v1`，包含问题陈述、待核验缺口、机制假设、预测、证伪测试、基线、风险和候选论文 provenance。草案始终标为 `HYPOTHESIS`/`unreviewed`，不推进 Workspace、不批准 Gate，也不把词面未命中解释为新颖性。`--report` 会在 `indexes/reports/idea_<id>/` 生成 JSON、Markdown 和 `return_bundle.zip`，包内不含完整摘要。
+
+要让 Agent 从候选论文形成多个可比较的研究方向，可运行：
+
+```bash
+python -m research_agent --repo "$PWD" --json idea propose \
+  --query "二维医学图像扩散生成" --limit 50 --report > /tmp/m2a-proposals.json
+```
+
+输出为 `idea-proposal-set-v1`。每个方向都带 `HYPOTHESIS` 状态、证据卡引用、机制、可检验预测、竞争解释、基线、消融和失败条件；证据卡只保留短摘录和可复核 provenance。没有可支持主题时命令以退出码 5 返回 `blocked`，不会生成泛化的医学建议。Workspace 在 G4 可导出当前提案；G4 获批后再次运行 `run` 会生成 `research-package-v1`，再用同一命令导出：
+
+```bash
+python -m research_agent --repo "$PWD" --json export <workspace_id>
+```
+
+导出包只含 allowlist 后的提案、证据卡和 Markdown，不含完整摘要、原始语料、数据库或 Workspace 内部状态。研究包明确标为 `scientific_validation=not_performed`，仍需人工核对全文、相关工作和实验结果。
 
 `index build` 完成全部原始校验和流式读取后才发布索引。相同快照/profile 可以复用，数据库损坏则明确拒绝，不自动覆盖。
 `index verify` 重验源语料；`search` 验证冻结索引，**不每次重新读取源语料**。修改后的源文件不会静默被带入已发布索引。

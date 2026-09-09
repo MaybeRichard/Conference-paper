@@ -141,3 +141,41 @@ def test_s3_reuses_persisted_idea_provenance_without_corpus_writes(fixture_repo:
         if path.is_file()
     }
     assert corpus_after == corpus_before
+
+
+def test_g3_approval_generates_evidence_bound_proposals_and_opens_g4(fixture_repo: Path):
+    from tests.agent.retrieval_factory import make_retrieval_corpus
+
+    make_retrieval_corpus(fixture_repo)
+    agent = ResearchAgent(fixture_repo)
+    state = agent.create_workspace("二维医学图像扩散生成", "medical_diffusion_2d")
+    _approve_g1(agent, state)
+    agent.build_index()
+    g2 = agent.advance(state.workspace_id)
+    assert g2.pending_gate is not None
+    agent.approve_gate(state.workspace_id, DecisionInput(
+        request_id="m2b_g3_setup", gate_id=g2.pending_gate.gate_id,
+        artifact=g2.pending_gate.artifact, actor="user", action="approve"))
+    g3 = agent.advance(state.workspace_id)
+    assert g3.pending_gate is not None
+    approved = agent.approve_gate(state.workspace_id, DecisionInput(
+        request_id="m2b_g4_setup", gate_id=g3.pending_gate.gate_id,
+        artifact=g3.pending_gate.artifact, actor="user", action="approve"))
+    assert (approved.stage, approved.status) == ("S7", "not_started")
+
+    result = agent.advance(state.workspace_id)
+
+    assert result.status == "waiting_for_user"
+    assert result.stage == "G4"
+    assert result.pending_gate is not None
+    assert result.pending_gate.artifact.artifact_id == "idea_proposal_set"
+    store = ArtifactStore(fixture_repo / "workspaces" / state.workspace_id)
+    payload = store.read(result.pending_gate.artifact)
+    assert payload["schema_version"] == "idea-proposal-set-v1"
+    assert payload["proposals"]
+    assert payload["proposals"][0]["epistemic_status"] == "HYPOTHESIS"
+    assert payload["proposals"][0]["evidence_ids"]
+    assert "novelty" in " ".join(payload["limitations"]).lower()
+
+    resumed = ResearchAgent(fixture_repo).advance(state.workspace_id)
+    assert resumed.pending_gate == result.pending_gate
