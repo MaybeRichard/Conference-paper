@@ -155,3 +155,23 @@ class ResearchAgent:
         if report:
             draft["report"] = write_idea_report(self.repo_root, draft)
         return draft
+
+    def screen_papers(
+        self, query: str, *, index_id: str | None = None, limit: int = 50,
+        per_channel: int = 500, conference: str | None = None,
+        year_from: int | None = None, year_to: int | None = None,
+    ) -> dict:
+        """Run deterministic S3 lexical triage without changing a Workspace."""
+        from research_agent.retrieval.screening import screen_candidates
+
+        retrieved = self.search_papers(
+            query,
+            index_id=index_id,
+            limit=limit,
+            per_channel=per_channel,
+            conference=conference,
+            year_from=year_from,
+            year_to=year_to,
+            report=False,
+        )
+        return screen_candidates(retrieved)
