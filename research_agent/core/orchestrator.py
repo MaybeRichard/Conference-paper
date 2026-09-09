@@ -26,6 +26,12 @@ class Orchestrator:
         if state.stage == "S2" and state.status == "not_started":
             return self.workspaces.run_s2(workspace_id)
 
+        # The persisted M1 gate table keeps G2's immediate target at S4.
+        # S4/not_started is the compatibility entry point for the bounded
+        # lexical S3 screen until that historical transition is migrated.
+        if state.stage == "S4" and state.status == "not_started":
+            return self.workspaces.run_s3(workspace_id)
+
         # S0/S1 are performed deterministically by WorkspaceService.create().
         # Any stage without an installed handler remains an honest block.
         return RunResult(

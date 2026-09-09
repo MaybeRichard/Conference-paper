@@ -46,13 +46,16 @@ def draft_idea(search_result: dict, *, domain: str = "medical_diffusion_2d") -> 
         hints = item.get("review_hints") or {}
         signals.update(hints.get("signals", ()))
         compact_candidates.append({
+            "record_key": item.get("record_key"),
             "rank": item.get("rank"),
             "paper_id": item.get("paper_id"),
             "source_paper_id": item.get("source_paper_id"),
             "title": item.get("title"),
             "conference": item.get("conference"),
             "year": item.get("year"),
+            "doi": item.get("doi", ""),
             "scope_status": item.get("scope_status", "unreviewed"),
+            "review_hints": item.get("review_hints", {}),
             "retrieval_evidence": item.get("retrieval_evidence", []),
             "provenance": item.get("provenance", {}),
         })

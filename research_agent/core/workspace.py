@@ -469,6 +469,147 @@ class WorkspaceService:
                 pending_gate=gate,
             )
 
+    def run_s3(self, workspace_id: str) -> RunResult:
+        """Screen the approved S2 candidates and open the G3 user Gate.
+
+        The persisted M1 transition table names S4 as G2's immediate target.
+        Until that table is migrated, S4/not_started is the compatibility
+        entry point for this bounded lexical S3 handler.  No semantic
+        relevance, eligibility or novelty conclusion is produced here.
+        """
+        from research_agent.core.gates import gate_for
+        from research_agent.retrieval.screening import screen_candidates
+
+        path = self._workspace_path(workspace_id)
+        store = ArtifactStore(path)
+        with store.locked():
+            state, config_ref, brief_ref = self._state_context_with_store(
+                workspace_id, path, store
+            )
+            if state.stage != "S4" or state.status != "not_started":
+                return RunResult(
+                    workspace_id=workspace_id,
+                    stage=state.stage,
+                    status="blocked",
+                    reason="s3_not_ready",
+                )
+
+            idea_ref: ArtifactRef | None = None
+            for envelope in store.events():
+                payload = envelope.get("payload", {})
+                if payload.get("type") != "S2Completed":
+                    continue
+                try:
+                    candidate_ref = ArtifactRef.model_validate(payload.get("artifact"))
+                except ValidationError:
+                    raise IntegrityError("S2 completion event has an invalid idea Artifact") from None
+                if candidate_ref.artifact_id != "idea_draft":
+                    raise IntegrityError("S2 completion event uses an unexpected idea Artifact")
+                idea_ref = candidate_ref
+            if idea_ref is None:
+                return RunResult(
+                    workspace_id=workspace_id,
+                    stage="S4",
+                    status="blocked",
+                    reason="s3_source_idea_missing",
+                )
+
+            idea = store.read(idea_ref)
+            source = idea.get("source_search")
+            candidates = idea.get("candidates")
+            if not isinstance(source, dict) or not isinstance(candidates, list):
+                return RunResult(
+                    workspace_id=workspace_id,
+                    stage="S4",
+                    status="blocked",
+                    reason="s3_source_provenance_incomplete",
+                )
+            if source.get("snapshot_id") != state.snapshot_id:
+                return RunResult(
+                    workspace_id=workspace_id,
+                    stage="S4",
+                    status="blocked",
+                    reason="s3_source_snapshot_mismatch",
+                )
+            search_result = {
+                "schema_version": "lexical-search-v1",
+                "status": "completed",
+                "index_id": source.get("index_id"),
+                "snapshot_id": source.get("snapshot_id"),
+                "snapshot_checksum": source.get("snapshot_checksum"),
+                "query_plan": source.get("query_plan", {}),
+                "coverage": source.get("coverage", {}),
+                "candidates": candidates,
+            }
+            try:
+                screened = screen_candidates(search_result)
+            except (TypeError, ValueError):
+                return RunResult(
+                    workspace_id=workspace_id,
+                    stage="S4",
+                    status="blocked",
+                    reason="s3_source_provenance_invalid",
+                )
+
+            core_payload = dict(screened)
+            core_payload.pop("artifact_sha256", None)
+            core_payload["source_idea"] = idea_ref.model_dump(mode="json")
+            # Keep the screening module's self-contained content hash as a
+            # checksum of the payload body; ArtifactStore separately hashes
+            # the complete persisted payload for its ArtifactRef.
+            core_payload["artifact_sha256"] = digest(core_payload)
+            artifact_sha256 = digest(core_payload)
+            core_ref = ArtifactRef(
+                artifact_id="core_paper_set",
+                version=1,
+                sha256=artifact_sha256,
+            )
+            gate = gate_for("G3", core_ref)
+            new_state = WorkspaceState(
+                workspace_id=workspace_id,
+                snapshot_id=state.snapshot_id,
+                stage="G3",
+                status="waiting_for_user",
+                pending_gate=gate,
+            )
+            events = [
+                {
+                    "type": "S3Completed",
+                    "workspace_id": workspace_id,
+                    "artifact": core_ref.model_dump(mode="json"),
+                    "source_idea": idea_ref.model_dump(mode="json"),
+                    "snapshot_id": state.snapshot_id,
+                },
+                {
+                    "type": "GateOpened",
+                    "workspace_id": workspace_id,
+                    "gate": gate.model_dump(mode="json"),
+                },
+                {
+                    "type": "WorkspaceStateChanged",
+                    "workspace_id": workspace_id,
+                    "state": new_state.model_dump(mode="json"),
+                    "effective_config": config_ref.model_dump(mode="json"),
+                    "research_brief": brief_ref.model_dump(mode="json"),
+                },
+            ]
+            committed = store.commit(
+                "core_paper_set",
+                1,
+                core_payload,
+                events,
+                f"s3_{workspace_id}_{idea_ref.version}",
+            )
+            if committed != core_ref:
+                raise IntegrityError("S3 core paper set reference changed during commit")
+            self._write_projection(path, new_state, config_ref, brief_ref)
+            return RunResult(
+                workspace_id=workspace_id,
+                stage="G3",
+                status="waiting_for_user",
+                pending_gate=gate,
+            )
+
     def revise_brief(
         self,
         workspace_id: str,
