@@ -44,6 +44,15 @@ print('只需回传这个文件:', r['report']['bundle_path'])
 PY
 ```
 
+要从一次检索直接得到一个可审阅的研究起点，可以运行离线的 Idea 草案命令：
+
+```bash
+python -m research_agent --repo "$PWD" --json idea draft \
+  --query "二维医学图像扩散生成" --limit 10 --report > /tmp/m2a-idea.json
+```
+
+该命令输出 `idea-draft-v1`，包含问题陈述、待核验缺口、机制假设、预测、证伪测试、基线、风险和候选论文 provenance。草案始终标为 `HYPOTHESIS`/`unreviewed`，不推进 Workspace、不批准 Gate，也不把词面未命中解释为新颖性。`--report` 会在 `indexes/reports/idea_<id>/` 生成 JSON、Markdown 和 `return_bundle.zip`，包内不含完整摘要。
+
 `index build` 完成全部原始校验和流式读取后才发布索引。相同快照/profile 可以复用，数据库损坏则明确拒绝，不自动覆盖。
 `index verify` 重验源语料；`search` 验证冻结索引，**不每次重新读取源语料**。修改后的源文件不会静默被带入已发布索引。
 
