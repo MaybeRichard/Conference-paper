@@ -25,6 +25,12 @@ def test_report_exports_readable_proposals_and_only_allowed_content(tmp_path):
     result["proposals"][0]["title"] = "![load](https://example.org/a) <script>x</script>"
     paths = write_proposal_report(repo, result)
     text = Path(paths["report_path"]).read_text()
+    dashboard = Path(paths["dashboard_path"])
+    assert dashboard.is_file()
+    dashboard_text = dashboard.read_text()
+    assert "IDEA ATLAS" in dashboard_text and "证据账本" in dashboard_text
+    assert dashboard_text.count("<script>") == 1
+    assert "\\u003cscript\\u003e" in dashboard_text
     assert "<script>" not in text and "![load]" not in text
     assert "实验" in text and "假设" in text
     with ZipFile(paths["bundle_path"]) as z:
