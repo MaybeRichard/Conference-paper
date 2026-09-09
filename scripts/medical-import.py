@@ -317,6 +317,8 @@ def main() -> int:
 
     corpus = Path(args.corpus).resolve()
     if args.stage_from:
+        if args.dry_run:
+            ap.error("--dry-run cannot be combined with --stage-from; staging writes audited source files")
         stage(Path(args.stage_from).resolve(), corpus)
         return 0
 
@@ -390,7 +392,8 @@ def main() -> int:
     written = []
     for rel in new_releases:
         rel_dir = corpus / "corpus" / "releases" / rel["conf"] / str(rel["year"]) / rel["release_id"]
-        rel_dir.mkdir(parents=True, exist_ok=True)
+        if not args.dry_run:
+            rel_dir.mkdir(parents=True, exist_ok=True)
         shard = rel_dir / "papers.jsonl"
         shard_bytes = "".join(
             json.dumps(r, ensure_ascii=False, sort_keys=True) + "\n" for r in rel["records"]
@@ -454,7 +457,9 @@ def main() -> int:
         manifest_checksum = sha256_bytes(
             (json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + "\n").encode("utf-8")
         )
-        materialization_parts.append(f"{rel['release_id']}|{shard_checksum}")
+        # Snapshot materialization is defined over release manifests, so the
+        # digest can be recomputed from snapshot.releases alone.
+        materialization_parts.append(f"{rel['release_id']}|{manifest_checksum}")
         written.append({
             "conference": rel["conf"],
             "manifest_checksum": manifest_checksum,

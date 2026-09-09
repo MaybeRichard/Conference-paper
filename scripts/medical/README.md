@@ -1,6 +1,6 @@
 # MICCAI / ISBI 更新工具
 
-MICCAI 与 ISBI 的数据管线（与其他 12 个会议不同）：
+MICCAI 与 ISBI 的数据管线（与其他 11 个 paperlists 会议不同）：
 
 1. **Crossref**（权威枚举）："accepted = 收录于官方 proceedings"，出版商注册即为准。
 2. **Semantic Scholar**（仅增强）：摘要、引用数、开放获取 PDF 链接；不可用于枚举。
@@ -24,12 +24,13 @@ MICCAI 与 ISBI 的数据管线（与其他 12 个会议不同）：
    python3 scripts/medical/fetch_crossref.py --out RAW --miccai-volume 10.1007/978-3-031-XXXXX-X
    ```
 3. 运行 `python3 scripts/medical/fetch_s2.py --out RAW --venue MICCAI --year 2026`。
-4. 扩展 `scripts/medical-import.py` 中的常量：`YEARS["MICCAI"]` 与 `S2_FILES["MICCAI"]`
+4. 扩展 `scripts/medical-import.py` 中的常量：`TARGETS["MICCAI"]` 与 `S2_FILES["MICCAI"]`
    加入 2026（stage() 内 ISBI 的 `range(...)` 同理）。
 5. 试跑 + 正式导入：
    ```bash
-   python3 scripts/medical-import.py --dry-run --stage-from RAW
    python3 scripts/medical-import.py --stage-from RAW
+   python3 scripts/medical-import.py --dry-run
+   python3 scripts/medical-import.py
    ```
 6. 重新生成/核对 `DATASET_MANIFEST.json`（见根 README「完整性校验」），
    跑测试，更新 README 统计与 `corpus/README.md`。
@@ -44,8 +45,8 @@ MICCAI 与 ISBI 的数据管线（与其他 12 个会议不同）：
    python3 scripts/medical/fetch_crossref.py --out RAW --isbi 2026 "2026 IEEE 23rd International Symposium on Biomedical Imaging (ISBI)"
    ```
 3. `python3 scripts/medical/fetch_s2.py --out RAW --venue ISBI --year 2026`
-4. 扩展 `medical-import.py`：`YEARS["ISBI"]`、`S2_FILES["ISBI"]`、stage() 中 ISBI 的年份 `range`。
-5. `--dry-run` 后正式导入，校验并更新文档。
+4. 扩展 `medical-import.py`：`TARGETS["ISBI"]`、`S2_FILES["ISBI"]`、stage() 中 ISBI 的年份 `range`。
+5. 先运行 `--stage-from RAW` 固化原始抓取，再运行 `--dry-run` 预览导入，最后正式导入并更新文档。
 
 ## 已知限制
 
