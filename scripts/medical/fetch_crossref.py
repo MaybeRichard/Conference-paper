@@ -107,7 +107,9 @@ def main() -> None:
         print(f"ISBI {year}: {title}")
         # NB: do NOT quote the container-title in the filter; quoted filters
         # return 0 results for these proceedings titles.
-        msg = crossref_message(f"container-title:{urllib.parse.quote(title, safe='')}")
+        # crossref_message URL-encodes the complete filter with urlencode;
+        # quoting the title here would encode percent signs a second time.
+        msg = crossref_message(f"container-title:{title}")
         out.mkdir(parents=True, exist_ok=True)
         path = out / f"isbi_xref_{year}.json"
         path.write_text(json.dumps(msg, ensure_ascii=False, sort_keys=True) + "\n")

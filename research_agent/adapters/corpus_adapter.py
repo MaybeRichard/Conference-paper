@@ -28,6 +28,18 @@ class CorpusVerification:
 
 
 @dataclass(frozen=True)
+class LocatedRecord:
+    """Unmodified record plus a locator in a hash-verified source shard.
+
+    record_number is 1-based among nonempty JSONL records, NOT physical lines.
+    """
+    record: dict
+    shard_path: str
+    shard_sha256: str
+    record_number: int
+
+
+@dataclass(frozen=True)
 class _Shard:
     relative: str
     checksum: str
@@ -150,6 +162,17 @@ class CorpusAdapter:
         if _text(snapshot, "snapshot_id") != selected:
             raise IntegrityError("Snapshot identity mismatch")
         paper_count = _number(snapshot, "paper_count")
+        materialization_algorithm = snapshot.get("materialization_checksum_algorithm")
+        if materialization_algorithm is not None:
+            if materialization_algorithm != "release-manifest-v1":
+                raise IntegrityError("Unsupported materialization checksum algorithm")
+            materialization = "\n".join(sorted(
+                f"{entry['release_id']}|{_checksum(entry, 'manifest_checksum')}"
+                for entry in _entries(snapshot, "releases")
+            ))
+            expected_materialization = hashlib.sha256(materialization.encode("utf-8")).hexdigest()
+            if _checksum(snapshot, "materialization_checksum") != expected_materialization:
+                raise IntegrityError("Snapshot materialization checksum mismatch")
         shards = []
         release_ids: set[str] = set()
         manifest_paths: set[str] = set()
@@ -225,3 +248,11 @@ class CorpusAdapter:
         self._verify(snapshot)
         for shard in snapshot.shards:
             yield from self._scan_shard(shard)
+
+    def iter_located_records(self, snapshot_id: str) -> Iterator[LocatedRecord]:
+        """Stream verified records with provenance; publish only after exhaustion."""
+        snapshot = self._load_snapshot(snapshot_id)
+        self._verify(snapshot)
+        for shard in snapshot.shards:
+            for number, record in enumerate(self._scan_shard(shard), 1):
+                yield LocatedRecord(record, shard.relative, shard.checksum, number)

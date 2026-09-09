@@ -41,7 +41,7 @@
 │   ├── snapshots/<id>/manifest.json   快照（release 组合 + 论文总数）
 │   └── sources/medical/         MICCAI/ISBI 的 API 原始抓取（审计溯源）
 ├── scripts/
-│   ├── paperlists-import.py     12 个会议的更新导入器（paperlists 上游）
+│   ├── paperlists-import.py     11 个非医学会议的更新导入器（paperlists 上游）
 │   └── medical-import.py        MICCAI/ISBI 更新导入器（Crossref+S2）
 │       └── medical/             MICCAI/ISBI 抓取脚本 + 更新手册
 └── tests/conference-corpus.test.mjs   语料完整性测试
@@ -52,8 +52,8 @@
 
 ## 字段（每条记录）
 
-恒有：`title`、`authors`、`abstract`（个别源无摘要时为空串）、`conference`、
-`year`、`paper_id`、`paper_url`、`source`、`source_id`；外层另有 `aliases`、
+核心字段：`title`、`authors`、`abstract`（个别源无摘要时为空串）、`conference`、
+`year`、`paper_id`、`source`、`source_id`；`paper_url` 等链接字段按来源覆盖。外层另有 `aliases`、
 `canonical_title`、`first_seen_year`、`ordinal`。
 
 视来源覆盖：`track`（93.5%）、`pdf_url`（87.6%，外链不存全文）、`doi`（59.7%）、
@@ -79,7 +79,12 @@ for rel in snap['releases']:
 EOF
 
 # 完整性校验（200 个文件）
-jq -r '.files[] | "\(.sha256)  \(.path)"' DATASET_MANIFEST.json | sha256sum -c -
+python3 - <<'EOF'
+import hashlib, json, pathlib
+for entry in json.load(open('DATASET_MANIFEST.json'))['files']:
+    assert hashlib.sha256(pathlib.Path(entry['path']).read_bytes()).hexdigest() == entry['sha256'], entry['path']
+print('all checksums verified')
+EOF
 
 # 测试
 node --test tests/conference-corpus.test.mjs
@@ -89,7 +94,7 @@ node --test tests/conference-corpus.test.mjs
 
 1. **原始本地导出（legacy，2023–2026 批次）**：早期快照，`collection-adapter-v1` /
    `legacy-local-corpus-v1`；无公开上游，按不可变策略保留。
-2. **paperlists 上游仓库**（`jzhang38-paperlists/paperlists`）：12 个会议的
+2. **paperlists 上游仓库**（`papercopilot/paperlists`）：11 个非医学会议的
    per-conference JSON（OpenReview/CVF/PMLR 等官方数据源的社区整理）；
    各 release 记录所用上游 commit 与文件 SHA-256。
 3. **Crossref + Semantic Scholar**（MICCAI/ISBI 2020–2025）：Crossref 做权威
@@ -100,7 +105,7 @@ node --test tests/conference-corpus.test.mjs
 
 ## 更新
 
-- 12 个 paperlists 会议：上游放榜后运行 `scripts/paperlists-import.py`
+- 11 个 paperlists 会议：上游放榜后运行 `scripts/paperlists-import.py`
   （增量导入，已存在标题自动去重；`--dry-run` 先看）。
 - MICCAI/ISBI：见 `scripts/medical/README.md`（Crossref 枚举 + S2 增强 +
   `medical-import.py --stage-from`）。

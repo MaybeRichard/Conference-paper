@@ -1,0 +1,126 @@
+# M2A：实际可用的本地论文候选检索
+
+本批包含 M2 的本地词法检索和离线 S2→S7→G4→S11 最小纵向切片，不是完整研究闭环。`search` 仍是独立探索命令；G1 获批后，`run` 会读取固定索引生成带 provenance 的 idea 草案并打开 G2，G2 获批后执行确定性的 S3 去重/聚类并打开 G3，G3 获批后生成带证据卡的 HYPOTHESIS 提案并打开 G4，G4 获批后固化一个待科学验证的研究包。无需 GPU、模型密钥或联网服务；安装 Python 依赖时仍需可用包源。
+
+## 使用前
+
+分支：`feat/research-agent-m2a-lexical`，依赖尚未合并的 `feat/research-agent-m1`。
+不要把 M2A 合并到 M1，也不要为试用执行 reset/restore/clean。
+本地若有原始 corpus 的未提交修改，应使用新 worktree/clone，**不要修复或覆盖原工作区来让检查通过**。
+
+例如已有完整 Git 仓库时，在仓库外创建新 worktree：
+
+```bash
+REPO="/你的绝对路径/Conference-paper"
+git -C "$REPO" fetch origin feat/research-agent-m2a-lexical
+M2A_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/research-m2a.XXXXXX")"
+git -C "$REPO" worktree add --detach "$M2A_ROOT/repo" origin/feat/research-agent-m2a-lexical
+cd "$M2A_ROOT/repo"
+git rev-parse HEAD
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e '.[dev]'
+```
+
+Python >=3.11，SQLite 需含 FTS5。缺 FTS5 时明确返回 `fts5_unavailable`，不会静默伪造语义检索。
+临时目录可能被系统清理；长期使用请把 `M2A_ROOT` 换成自己创建的固定外部目录。不要把既有研究 Workspace 复制到测试目录。
+
+## 只需试用这些新命令
+
+```bash
+python -m research_agent --repo "$PWD" --json index status
+python -m research_agent --repo "$PWD" --json index build > /tmp/m2a-index.json
+python -m research_agent --repo "$PWD" --json index verify
+python -m research_agent --repo "$PWD" --json search \
+  --query "二维医学图像扩散生成" --limit 50 --report > /tmp/m2a-search.json
+python - <<'PY'
+import json
+from pathlib import Path
+r = json.loads(Path('/tmp/m2a-search.json').read_text(encoding='utf-8'))
+print('返回候选:', len(r['candidates']))
+print('缺摘要补全队列:', len(r['missing_abstract_queue']))
+print('报告:', r['report']['report_path'])
+print('只需回传这个文件:', r['report']['bundle_path'])
+PY
+```
+
+要从一次检索直接得到一个可审阅的研究起点，可以运行离线的 Idea 草案命令：
+
+```bash
+python -m research_agent --repo "$PWD" --json idea draft \
+  --query "二维医学图像扩散生成" --limit 10 --report > /tmp/m2a-idea.json
+```
+
+该命令输出 `idea-draft-v1`，包含问题陈述、待核验缺口、机制假设、预测、证伪测试、基线、风险和候选论文 provenance。草案始终标为 `HYPOTHESIS`/`unreviewed`，不推进 Workspace、不批准 Gate，也不把词面未命中解释为新颖性。`--report` 会在 `indexes/reports/idea_<id>/` 生成 JSON、Markdown 和 `return_bundle.zip`，包内不含完整摘要。
+
+要让 Agent 从候选论文形成多个可比较的研究方向，可运行：
+
+```bash
+python -m research_agent --repo "$PWD" --json idea propose \
+  --query "二维医学图像扩散生成" --limit 50 --report > /tmp/m2a-proposals.json
+```
+
+输出为 `idea-proposal-set-v1`。每个方向都带 `HYPOTHESIS` 状态、证据卡引用、机制、可检验预测、竞争解释、基线、消融和失败条件；证据卡只保留短摘录和可复核 provenance。没有可支持主题时命令以退出码 5 返回 `blocked`，不会生成泛化的医学建议。Workspace 在 G4 可导出当前提案；G4 获批后再次运行 `run` 会生成 `research-package-v1`，再用同一命令导出：
+
+```bash
+python -m research_agent --repo "$PWD" --json export <workspace_id>
+```
+
+导出包只含 allowlist 后的提案、证据卡和 Markdown，不含完整摘要、原始语料、数据库或 Workspace 内部状态。研究包明确标为 `scientific_validation=not_performed`，仍需人工核对全文、相关工作和实验结果。
+
+`index build` 完成全部原始校验和流式读取后才发布索引。相同快照/profile 可以复用，数据库损坏则明确拒绝，不自动覆盖。
+`index verify` 重验源语料；`search` 验证冻结索引，**不每次重新读取源语料**。修改后的源文件不会静默被带入已发布索引。
+
+不要把示例路径 `/tmp/m2a-search.json` 放进生产自动化共用目录。自动化应使用各运行独有目录；生成的报告目录本身使用随机 ID，不覆盖旧报告。
+
+## 定向查询与过滤
+
+```bash
+python -m research_agent --repo "$PWD" --json search --query "RetiDiff" --report
+python -m research_agent --repo "$PWD" --json search --query "diffusion retinal synthesis" --year-from 2023 --year-to 2025 --report
+python -m research_agent --repo "$PWD" --json search --query "diffusion virtual staining" --conference MICCAI --report
+```
+
+检索是纯文本，不支持用户直接传 SQL 或 FTS 运算符。少量中文概念采用公开可审计的字典展开，不是任意中文翻译。未知中文修饰词和否定条件报输入错误；请使用明确英文词组合，或检查报告中的查询计划。
+
+`--per-channel` 默认500，上限5000；`--limit` 默认50，上限1000。会议/年份过滤在每路截断前执行。无年份过滤时搜索整个指定快照，不冒称仅近五年；需要时间窗请显式传年份参数。
+
+## 如何读报告
+
+- `paper_id` 是外层语料规范记录标识；`source_paper_id` 是来源记录内部 ID，可能分别是 `paper_...` 与 `papermed_...`，不是换了一篇论文。
+- 标题、摘要与联合通道的 BM25 排名经 RRF 融合；分数不是相关性/录用概率。
+- 缺摘要的标题命中有独立保留名额，不把无摘要当作不相关。标为 `missing_abstract_reserved`。
+- `2d_mentioned`、`3d_mentioned`、`segmentation_mentioned` 等只是词面提示，所有候选仍是 `scope_status=unreviewed`。二维骨干不证明任务独立二维。
+- “候选报告”是可供人工筛查的检索结果，不是用户已批准的 G2。API `screen_papers(...)` 可进一步生成确定性的去重/聚类提示，但仍不做语义资格或新颖性判断。
+- `missing_abstract_queue.jsonl` 只覆盖本次有界召回的缺摘要记录，`enrichment_status=not_attempted`，**不是已补齐摘要**。
+- 匹配数、截断和覆盖都记录；未计算真实 Recall@K，不据此声称全领域覆盖或研究空白。
+- 报告含查询文本与论文元数据，提交前可检查内容。回传ZIP不含完整摘要、原始JSONL、PDF、数据库、Workspace或环境变量。
+
+## 需要回传什么
+
+正常试用只回传命令打印的 `return_bundle.zip`，并说明前10篇有没有明显相关/明显不相关的论文。无需再复制190项M1测试。
+失败时保留实际退出码和JSON错误，回传失败命令及输出；不要改原始语料、manifest或测试断言。
+
+| 退出码 | 含义 |
+|---|---|
+| 0 | 命令完成；可能真实零命中，不等于无人研究 |
+| 2 | 查询/参数不支持或输入无效 |
+| 3 | 索引发布冲突 |
+| 4 | 索引、来源或路径完整性错误 |
+| 5 | 索引未建立 / SQLite缺FTS5；G1 获批后 `run` 会在索引缺失时明确阻塞 |
+| 6 | 另一个索引构建占用锁 |
+
+## 开发验收（用户正常试用不用全跑）
+
+```bash
+node --test tests/conference-corpus.test.mjs
+python -m pytest tests/agent -q -ra
+python -m compileall -q research_agent
+python -m build
+OUT="$(mktemp -d "${TMPDIR:-/tmp}/m2a-evidence.XXXXXX")"
+python tools/m2a_smoke.py --repo "$PWD" --out "$OUT"
+git diff --check
+git status --short
+```
+
+该 smoke 使用固定语料的已知标题做工程召回校准；不评价整套检索的科学质量。独立代码审查和真实研究者相关性评测仍需另行完成。

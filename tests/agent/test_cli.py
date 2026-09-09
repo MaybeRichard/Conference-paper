@@ -105,7 +105,7 @@ def test_cli_runs_create_gate_approval_reopen_and_honest_block(
     blocked_result = output(blocked)
     assert blocked_result["stage"] == "S2"
     assert blocked_result["status"] == "blocked"
-    assert blocked_result["reason"] == "stage_handler_not_installed"
+    assert blocked_result["reason"] == "index_not_built"
     assert blocked_result["new_artifacts"] == []
 
     reopened = run_cli(fixture_repo, "status", workspace_id)

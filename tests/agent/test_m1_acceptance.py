@@ -68,7 +68,7 @@ def test_create_wait_approve_reopen_and_block_leave_corpus_unchanged(
     assert (blocked.stage, blocked.status, blocked.reason) == (
         "S2",
         "blocked",
-        "stage_handler_not_installed",
+        "index_not_built",
     )
     assert blocked.new_artifacts == ()
     assert reopened.get_status(state.workspace_id) == approved

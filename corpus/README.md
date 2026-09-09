@@ -45,7 +45,12 @@ SHA-256（含 `corpus/sources/medical/` 下 26 个已提交的 API 原始抓取
 从仓库根目录验证：
 
 ```bash
-jq -r '.files[] | "\(.sha256)  \(.path)"' DATASET_MANIFEST.json | sha256sum -c -
+python3 - <<'EOF'
+import hashlib, json, pathlib
+for entry in json.load(open('DATASET_MANIFEST.json'))['files']:
+    assert hashlib.sha256(pathlib.Path(entry['path']).read_bytes()).hexdigest() == entry['sha256'], entry['path']
+print('all checksums verified')
+EOF
 node --test tests/conference-corpus.test.mjs
 ```
 

@@ -144,7 +144,7 @@ def _emit(value: Any, *, json_mode: bool) -> None:
 def _build_parser() -> argparse.ArgumentParser:
     parser = _ArgumentParser(
         prog="research-agent",
-        description="Evidence-grounded Research Story Agent M1 foundations.",
+        description="Research Story Agent M1 foundations with M2A exploratory lexical retrieval.",
     )
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     parser.add_argument("--repo", type=Path, help="Repository root containing corpus/")
@@ -204,6 +204,44 @@ def _build_parser() -> argparse.ArgumentParser:
 
     validate = commands.add_parser("validate", help="Validate one Workspace")
     validate.add_argument("workspace_id")
+    index = commands.add_parser("index", help="Build/verify/status a pinned lexical index")
+    index_commands = index.add_subparsers(dest="index_command", required=True, parser_class=_ArgumentParser)
+    build = index_commands.add_parser("build")
+    build.add_argument("--snapshot-id")
+    for name in ("verify", "status"):
+        command = index_commands.add_parser(name)
+        command.add_argument("--index-id")
+    search = commands.add_parser("search", help="Standalone candidate search; does not advance S2")
+    search.add_argument("--query", required=True)
+    search.add_argument("--index-id")
+    search.add_argument("--limit", type=int, default=50)
+    search.add_argument("--per-channel", type=int, default=500)
+    search.add_argument("--conference")
+    search.add_argument("--year-from", type=int)
+    search.add_argument("--year-to", type=int)
+    search.add_argument("--report", action="store_true", help="Create report and return_bundle.zip below indexes/reports")
+    idea = commands.add_parser("idea", help="Standalone hypothesis drafting from local candidates")
+    idea_commands = idea.add_subparsers(dest="idea_command", required=True, parser_class=_ArgumentParser)
+    draft = idea_commands.add_parser("draft", help="Draft a HYPOTHESIS; does not advance a Workspace")
+    draft.add_argument("--query", required=True)
+    draft.add_argument("--index-id")
+    draft.add_argument("--limit", type=int, default=10)
+    draft.add_argument("--per-channel", type=int, default=500)
+    draft.add_argument("--conference")
+    draft.add_argument("--year-from", type=int)
+    draft.add_argument("--year-to", type=int)
+    draft.add_argument("--report", action="store_true")
+    propose = idea_commands.add_parser("propose", help="Generate evidence-bound HYPOTHESIS proposals")
+    propose.add_argument("--query", required=True)
+    propose.add_argument("--index-id")
+    propose.add_argument("--limit", type=int, default=50)
+    propose.add_argument("--per-channel", type=int, default=500)
+    propose.add_argument("--conference")
+    propose.add_argument("--year-from", type=int)
+    propose.add_argument("--year-to", type=int)
+    propose.add_argument("--report", action="store_true")
+    export = commands.add_parser("export", help="Export proposals at G4 or after final packaging")
+    export.add_argument("workspace_id")
     return parser
 
 
@@ -212,6 +250,26 @@ def _dispatch(args: argparse.Namespace) -> tuple[Any, int]:
         raise ValueError("--repo is required for repository operations")
     agent = ResearchAgent(args.repo)
 
+    if args.command == "index":
+        if args.index_command == "build": return agent.build_index(args.snapshot_id), 0
+        if args.index_command == "verify": return agent.verify_index(args.index_id), 0
+        return agent.index_status(args.index_id), 0
+    if args.command == "search":
+        return agent.search_papers(args.query, index_id=args.index_id, limit=args.limit,
+                                  per_channel=args.per_channel, conference=args.conference,
+                                  year_from=args.year_from, year_to=args.year_to, report=args.report), 0
+    if args.command == "idea" and args.idea_command == "draft":
+        return agent.draft_idea(args.query, index_id=args.index_id, limit=args.limit,
+                                per_channel=args.per_channel, conference=args.conference,
+                                year_from=args.year_from, year_to=args.year_to,
+                                report=args.report), 0
+    if args.command == "idea" and args.idea_command == "propose":
+        result = agent.propose_ideas(args.query, index_id=args.index_id, limit=args.limit,
+                                   per_channel=args.per_channel, conference=args.conference,
+                                   year_from=args.year_from, year_to=args.year_to, report=args.report)
+        return result, 5 if result["status"] == "blocked" else 0
+    if args.command == "export":
+        return agent.export_workspace(args.workspace_id), 0
     if args.command == "corpus" and args.corpus_command == "verify":
         return agent.verify_corpus(args.snapshot_id), 0
     if args.command == "workspace" and args.workspace_command == "create":
