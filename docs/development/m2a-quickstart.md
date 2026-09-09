@@ -1,6 +1,6 @@
 # M2A：实际可用的本地论文候选检索
 
-本批是 M2 的第一片，不是完整 S2/G2。M1 的审批、恢复与 `run` 行为不变；本批的 `search` 单独读取固定索引，不推进课题。无需 GPU、模型密钥或联网服务；安装 Python 依赖时仍需可用包源。
+本批包含 M2 的本地词法检索和离线 S2→G2 最小纵向切片，不是完整 S3/G3。`search` 仍是独立探索命令；G1 获批后，`run` 会读取固定索引生成带 provenance 的 idea 草案并打开 G2。无需 GPU、模型密钥或联网服务；安装 Python 依赖时仍需可用包源。
 
 ## 使用前
 
@@ -76,7 +76,7 @@ python -m research_agent --repo "$PWD" --json search --query "diffusion virtual 
 - 标题、摘要与联合通道的 BM25 排名经 RRF 融合；分数不是相关性/录用概率。
 - 缺摘要的标题命中有独立保留名额，不把无摘要当作不相关。标为 `missing_abstract_reserved`。
 - `2d_mentioned`、`3d_mentioned`、`segmentation_mentioned` 等只是词面提示，所有候选仍是 `scope_status=unreviewed`。二维骨干不证明任务独立二维。
-- “候选报告”是可供人工筛查的检索结果，不是用户已批准的 G2。真正的语义筛选、代表性选择与精读留待下一批。
+- “候选报告”是可供人工筛查的检索结果，不是用户已批准的 G2。API `screen_papers(...)` 可进一步生成确定性的去重/聚类提示，但仍不做语义资格或新颖性判断。
 - `missing_abstract_queue.jsonl` 只覆盖本次有界召回的缺摘要记录，`enrichment_status=not_attempted`，**不是已补齐摘要**。
 - 匹配数、截断和覆盖都记录；未计算真实 Recall@K，不据此声称全领域覆盖或研究空白。
 - 报告含查询文本与论文元数据，提交前可检查内容。回传ZIP不含完整摘要、原始JSONL、PDF、数据库、Workspace或环境变量。
@@ -92,7 +92,7 @@ python -m research_agent --repo "$PWD" --json search --query "diffusion virtual 
 | 2 | 查询/参数不支持或输入无效 |
 | 3 | 索引发布冲突 |
 | 4 | 索引、来源或路径完整性错误 |
-| 5 | 索引未建立 / SQLite缺FTS5；`run`仍可能因未安装S2处理器返回5 |
+| 5 | 索引未建立 / SQLite缺FTS5；G1 获批后 `run` 会在索引缺失时明确阻塞 |
 | 6 | 另一个索引构建占用锁 |
 
 ## 开发验收（用户正常试用不用全跑）
