@@ -71,6 +71,25 @@ jobs:
           git diff --exit-code 3c712fb722ca9fc2268a88eebd9f6a14e8a898f1 -- \
             corpus/releases corpus/snapshots corpus/registry.json corpus/sources/medical \
             DATA_NOTICE.md tests/conference-corpus.test.mjs
+          python - <<'PY'
+          import json
+          import subprocess
+
+          base = json.loads(subprocess.check_output([
+              'git', 'show',
+              '3c712fb722ca9fc2268a88eebd9f6a14e8a898f1:DATASET_MANIFEST.json',
+          ]))
+          head = json.load(open('DATASET_MANIFEST.json'))
+          # This follow-up intentionally broadens only included_fields. Every
+          # inventory, count, hash, and source descriptor remains immutable.
+          assert {k: v for k, v in head.items() if k != 'included_fields'} == {
+              k: v for k, v in base.items() if k != 'included_fields'
+          }
+          expected = set(base['included_fields']) | {
+              'conference', 'paper_id', 'source', 'source_id', 'year',
+          }
+          assert head['included_fields'] == sorted(expected)
+          PY
           git diff --check
           test -z "$(git status --short)"
           git rev-parse HEAD > "$RUNNER_TEMP/m2a-evidence/source-commit.txt"
