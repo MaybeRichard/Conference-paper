@@ -1,6 +1,6 @@
 # M2A acceptance and review notes
 
-Scope: standalone local lexical retrieval, not complete S2/S3, G2, online enrichment or an end-to-end research Agent.
+Scope: local lexical retrieval plus the bounded S2→G3 workflow slice. This remains an incomplete research Agent: it does not perform S4/S5/S6 full-text evidence work, online enrichment, semantic eligibility, or novelty assessment.
 Base: M1 `3c712fb722ca9fc2268a88eebd9f6a14e8a898f1`. All changes belong to the separate `feat/research-agent-m2a-lexical` branch.
 
 ## Local evidence, 2026-09-06 (Singapore date)
