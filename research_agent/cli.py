@@ -220,6 +220,17 @@ def _build_parser() -> argparse.ArgumentParser:
     search.add_argument("--year-from", type=int)
     search.add_argument("--year-to", type=int)
     search.add_argument("--report", action="store_true", help="Create report and return_bundle.zip below indexes/reports")
+    idea = commands.add_parser("idea", help="Standalone hypothesis drafting from local candidates")
+    idea_commands = idea.add_subparsers(dest="idea_command", required=True, parser_class=_ArgumentParser)
+    draft = idea_commands.add_parser("draft", help="Draft a HYPOTHESIS; does not advance a Workspace")
+    draft.add_argument("--query", required=True)
+    draft.add_argument("--index-id")
+    draft.add_argument("--limit", type=int, default=10)
+    draft.add_argument("--per-channel", type=int, default=500)
+    draft.add_argument("--conference")
+    draft.add_argument("--year-from", type=int)
+    draft.add_argument("--year-to", type=int)
+    draft.add_argument("--report", action="store_true")
     return parser
 
 
@@ -236,6 +247,11 @@ def _dispatch(args: argparse.Namespace) -> tuple[Any, int]:
         return agent.search_papers(args.query, index_id=args.index_id, limit=args.limit,
                                   per_channel=args.per_channel, conference=args.conference,
                                   year_from=args.year_from, year_to=args.year_to, report=args.report), 0
+    if args.command == "idea" and args.idea_command == "draft":
+        return agent.draft_idea(args.query, index_id=args.index_id, limit=args.limit,
+                                per_channel=args.per_channel, conference=args.conference,
+                                year_from=args.year_from, year_to=args.year_to,
+                                report=args.report), 0
     if args.command == "corpus" and args.corpus_command == "verify":
         return agent.verify_corpus(args.snapshot_id), 0
     if args.command == "workspace" and args.workspace_command == "create":
