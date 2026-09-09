@@ -48,8 +48,12 @@ def plan_query(text: str) -> dict:
             groups.append({"concept": key, "terms": terms, "origin": "curated_glossary"})
             remaining = re.sub(pattern, " ", remaining)
     remaining = re.sub(r"图像|图象|影像|模型|研究|方向|用于|基于|的|与|和", " ", remaining)
-    if re.search(r"[\u3400-\u9fff]", remaining):
-        raise ValueError("Unsupported Chinese modifier; use supported concepts or English terms")
+    unknown_chinese = list(dict.fromkeys(re.findall(r"[\u3400-\u9fff]+", remaining)))
+    if unknown_chinese:
+        warnings.append(
+            "Ignored unsupported Chinese modifier(s): " + ", ".join(unknown_chinese)
+        )
+        remaining = re.sub(r"[\u3400-\u9fff]+", " ", remaining)
     ignored = {"image", "images", "model", "models", "the", "of", "for", "and", "in", "with"} if groups else set()
     tokens = re.findall(r"[^\W_]+", remaining, flags=re.UNICODE)
     for token in dict.fromkeys(tokens):

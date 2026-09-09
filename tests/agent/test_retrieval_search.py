@@ -74,9 +74,20 @@ def test_unrelated_or_injection_query_is_literal_and_cannot_damage_db(index):
         assert search(index, query)["status"] == "completed"
 
 
-@pytest.mark.parametrize("query", ["", "   ", "***", "a"*2001, "医学图像扩散生成火星", "不要三维医学扩散生成"])
+@pytest.mark.parametrize("query", ["", "   ", "***", "a"*2001])
 def test_empty_oversized_or_unsupported_chinese_queries_fail_explicitly(query):
     with pytest.raises(ValueError): plan_query(query)
+
+
+def test_unknown_chinese_modifiers_are_ignored_with_audit_warning(index):
+    result = search(index, "二维医学图像扩散生成火星", limit=20)
+
+    assert result["status"] == "completed"
+    assert result["query_plan"]["dimension_intent"] == "2d"
+    assert {group["concept"] for group in result["query_plan"]["groups"]} >= {
+        "medical", "diffusion", "generation"
+    }
+    assert any("火星" in warning for warning in result["query_plan"]["warnings"])
 
 
 @pytest.mark.parametrize("kwargs", [{"limit":0}, {"limit":True}, {"limit":1001}, {"per_channel":0}, {"year_from":2025,"year_to":2024}])

@@ -28,7 +28,7 @@ def test_api_and_cli_build_search_report_roundtrip(tmp_path):
     assert rc == 0 and missing["status"] == "not_built"
     rc, built = cli(repo, "index", "build")
     assert rc == 0 and built["document_count"] == 7
-    rc, result = cli(repo, "search", "--query", "二维医学图像扩散生成", "--limit", "20", "--report")
+    rc, result = cli(repo, "search", "--query", "二维医学图像扩散生成火星", "--limit", "20", "--report")
     assert rc == 0 and result["candidates"]
     assert result["workflow_advanced"] is False
     bundle = Path(result["report"]["bundle_path"])
@@ -56,7 +56,7 @@ def test_corrupt_index_rejected_by_cli(tmp_path):
     assert rc == 4 and p["error"]["code"] == "integrity_error"
 
 
-@pytest.mark.parametrize("args", [("search","--query","医学扩散火星"), ("search","--query","diffusion","--limit","0"), ("index","build","--snapshot-id","../bad")])
+@pytest.mark.parametrize("args", [("search","--query","diffusion","--limit","0"), ("index","build","--snapshot-id","../bad")])
 def test_cli_bad_arguments_safe_json(tmp_path,args):
     repo=make_retrieval_corpus(tmp_path/"repo")
     rc,p=cli(repo,*args)
