@@ -71,6 +71,40 @@ def test_semantic_snapshot_mismatch_rejected(tmp_path, change):
         adapter(repo).verify()
 
 
+def test_declared_materialization_checksum_is_verified(tmp_path):
+    from research_agent.core.errors import IntegrityError
+    repo = make_corpus(tmp_path)
+    snapshot = read_json(repo, SNAPSHOT)
+    materialization = "\n".join(sorted(
+        f"{entry['release_id']}|{entry['manifest_checksum']}"
+        for entry in snapshot["releases"]
+    ))
+    snapshot["materialization_checksum_algorithm"] = "release-manifest-v1"
+    snapshot["materialization_checksum"] = hashlib.sha256(materialization.encode()).hexdigest()
+    checksum = write_json(repo, SNAPSHOT, snapshot)
+    registry = read_json(repo, REGISTRY)
+    registry["snapshots"][0]["manifest_checksum"] = checksum
+    write_json(repo, REGISTRY, registry)
+    assert adapter(repo).verify().paper_count == 1
+    snapshot["materialization_checksum"] = "0" * 64
+    checksum = write_json(repo, SNAPSHOT, snapshot)
+    registry["snapshots"][0]["manifest_checksum"] = checksum
+    write_json(repo, REGISTRY, registry)
+    with pytest.raises(IntegrityError, match="materialization checksum"):
+        adapter(repo).verify()
+
+
+def test_historical_snapshot_without_algorithm_marker_remains_compatible(tmp_path):
+    repo = make_corpus(tmp_path)
+    snapshot = read_json(repo, SNAPSHOT)
+    snapshot["materialization_checksum"] = "f" * 64
+    checksum = write_json(repo, SNAPSHOT, snapshot)
+    registry = read_json(repo, REGISTRY)
+    registry["snapshots"][0]["manifest_checksum"] = checksum
+    write_json(repo, REGISTRY, registry)
+    assert adapter(repo).verify().paper_count == 1
+
+
 @pytest.mark.parametrize("snapshot_id", ["missing", "", "../outside"])
 def test_unknown_snapshot_rejected(tmp_path, snapshot_id):
     from research_agent.core.errors import IntegrityError

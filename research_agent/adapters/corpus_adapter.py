@@ -162,6 +162,17 @@ class CorpusAdapter:
         if _text(snapshot, "snapshot_id") != selected:
             raise IntegrityError("Snapshot identity mismatch")
         paper_count = _number(snapshot, "paper_count")
+        materialization_algorithm = snapshot.get("materialization_checksum_algorithm")
+        if materialization_algorithm is not None:
+            if materialization_algorithm != "release-manifest-v1":
+                raise IntegrityError("Unsupported materialization checksum algorithm")
+            materialization = "\n".join(sorted(
+                f"{entry['release_id']}|{_checksum(entry, 'manifest_checksum')}"
+                for entry in _entries(snapshot, "releases")
+            ))
+            expected_materialization = hashlib.sha256(materialization.encode("utf-8")).hexdigest()
+            if _checksum(snapshot, "materialization_checksum") != expected_materialization:
+                raise IntegrityError("Snapshot materialization checksum mismatch")
         shards = []
         release_ids: set[str] = set()
         manifest_paths: set[str] = set()

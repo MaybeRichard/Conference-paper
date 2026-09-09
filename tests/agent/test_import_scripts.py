@@ -104,3 +104,4 @@ def test_new_snapshot_materialization_uses_manifest_checksums(tmp_path, fixture_
         for entry in snapshot["releases"]
     ))
     assert snapshot["materialization_checksum"] == hashlib.sha256(materialization.encode()).hexdigest()
+    assert snapshot["materialization_checksum_algorithm"] == "release-manifest-v1"

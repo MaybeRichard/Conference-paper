@@ -355,6 +355,7 @@ def main() -> int:
     snapshot = {
         "created_at": created_at,
         "materialization_checksum": sha256_bytes(materialization_content.encode("utf-8")),
+        "materialization_checksum_algorithm": "release-manifest-v1",
         "paper_count": old_paper_count + sum(len(r["records"]) for r in new_releases),
         "releases": sorted(
             old_snapshot["releases"] + written,
