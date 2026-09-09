@@ -65,9 +65,12 @@ jobs:
       - name: Protected assets and clean checkout
         run: |
           git fetch --no-tags --depth=1 origin 3c712fb722ca9fc2268a88eebd9f6a14e8a898f1
-          # The source corpus and its original integrity test are protected;
-          # this branch intentionally updates importer scripts and manifests.
-          git diff --exit-code 3c712fb722ca9fc2268a88eebd9f6a14e8a898f1 -- corpus DATA_NOTICE.md tests/conference-corpus.test.mjs
+          # Published records, snapshots, raw medical captures, and the
+          # original integrity test are protected. Documentation and importer
+          # scripts are intentionally updated by this follow-up.
+          git diff --exit-code 3c712fb722ca9fc2268a88eebd9f6a14e8a898f1 -- \
+            corpus/releases corpus/snapshots corpus/registry.json corpus/sources/medical \
+            DATA_NOTICE.md tests/conference-corpus.test.mjs
           git diff --check
           test -z "$(git status --short)"
           git rev-parse HEAD > "$RUNNER_TEMP/m2a-evidence/source-commit.txt"
